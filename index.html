@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>interpanic</title>
+  <meta name="description" content="interpanic — Rust клан. Набор игроков 3000+ часов. Доминация, контроль сервера, медийка." />
+
+  <style>
+    :root{
+      --bg:#05060a;
+      --bg2:#070915;
+
+      --card:rgba(10,12,22,.78);
+      --text:#e9ecff;
+      --muted:#a3aac8;
+
+      --red:#ff2d2d;
+      --red2:#ff0038;
+      --cyan:#00f5ff;
+
+      --line:rgba(255,255,255,.10);
+      --r:18px;
+      --shadow: 0 30px 80px rgba(0,0,0,.55);
+      --glow: 0 0 28px rgba(255,45,45,.20), 0 0 22px rgba(0,245,255,.10);
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;
+      color:var(--text);
+      background:
+        radial-gradient(900px 600px at 18% 10%, rgba(255,45,45,.26), transparent 62%),
+        radial-gradient(900px 600px at 85% 12%, rgba(255,0,56,.18), transparent 60%),
+        radial-gradient(1000px 800px at 50% 88%, rgba(255,45,45,.14), transparent 58%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    a{color:inherit; text-decoration:none}
+    .container{max-width:1120px; margin:0 auto; padding:0 20px}
+
+    /* Anarchy texture / scanlines */
+    .fx::before{
+      content:"";
+      position:fixed; inset:0; pointer-events:none; z-index:1;
+      background:
+        repeating-linear-gradient(to bottom,
+          rgba(255,255,255,.02), rgba(255,255,255,.02) 1px,
+          transparent 1px, transparent 3px);
+      mix-blend-mode:overlay;
+      opacity:.38;
+    }
+    .fx::after{
+      content:"";
+      position:fixed; inset:-40px; pointer-events:none; z-index:1;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
+      opacity:.33;
+      mix-blend-mode:soft-light;
+    }
+
+    /* Nav */
+    header.nav{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(14px);
+      background:rgba(5,6,10,.74);
+      border-bottom:1px solid rgba(255,45,45,.22);
+      box-shadow: 0 10px 40px rgba(0,0,0,.35);
+    }
+    .nav-inner{display:flex; align-items:center; justify-content:space-between; gap:14px; padding:12px 0}
+    .brand{display:flex; align-items:center; gap:12px; font-weight:900; letter-spacing:.6px; text-transform:uppercase}
+    .logo{
+      width:36px; height:36px; border-radius:12px;
+
+      /* ЛОГОТИП */
+      background:url("./anarchylogo1.png") center / cover no-repeat;
+
+      box-shadow: var(--glow);
+      position:relative;
+    }
+    .logo::after{
+      content:"";
+      position:absolute; inset:8px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.18);
+      transform:rotate(8deg);
+    }
+    .nav-links{display:flex; gap:10px; flex-wrap:wrap}
+    .nav-links a{
+      padding:8px 10px; border-radius:14px;
+      color:var(--muted);
+      border:1px solid transparent;
+    }
+    .nav-links a:hover{
+      color:var(--text);
+      border-color:rgba(255,45,45,.30);
+      background:rgba(255,45,45,.08);
+    }
+
+    /* Buttons */
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding:12px 16px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      cursor:pointer;
+      transition:.18s transform, .18s filter, .18s border-color, .18s background;
+      user-select:none;
+    }
+    .btn:hover{transform:translateY(-1px); border-color:rgba(255,255,255,.18); background:rgba(255,255,255,.08)}
+    .btn:active{transform:translateY(0px) scale(.99)}
+
+    .btn-primary{
+      border:0;
+      background:linear-gradient(135deg, var(--red2), var(--red));
+      box-shadow: 0 18px 50px rgba(255,0,56,.22), 0 0 30px rgba(255,45,45,.22);
+      text-transform:uppercase;
+      letter-spacing:.6px;
+      font-weight:900;
+    }
+    .btn-primary:hover{filter:brightness(1.08)}
+    .btn-outline-red{
+      border-color:rgba(255,45,45,.35);
+      background:rgba(255,45,45,.07);
+    }
+
+    /* Hero */
+    main{position:relative; z-index:2}
+    .hero{padding:64px 0 24px; position:relative; z-index:2}
+    .grid-hero{display:grid; grid-template-columns:1.2fr .8fr; gap:18px; align-items:stretch}
+    @media (max-width: 920px){.grid-hero{grid-template-columns:1fr}}
+
+    .tag{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:8px 12px; border-radius:999px;
+      border:1px solid rgba(255,45,45,.35);
+      background:rgba(255,45,45,.09);
+      color:var(--muted);
+      width:fit-content;
+    }
+    .tag b{color:var(--text)}
+    .tag .dot{
+      width:8px; height:8px; border-radius:999px;
+      background:var(--red);
+      box-shadow:0 0 18px rgba(255,45,45,.42);
+    }
+
+    h1{
+      font-size:54px;
+      line-height:1.02;
+      margin:14px 0 10px;
+      text-transform:uppercase;
+      letter-spacing:.8px;
+    }
+    @media (max-width: 560px){h1{font-size:40px}}
+    .lead{color:var(--muted); font-size:18px; margin:0 0 16px}
+    .cta{display:flex; gap:12px; flex-wrap:wrap; margin-top:16px}
+
+    /* Cards */
+    .card{
+      background:var(--card);
+      border:1px solid rgba(255,45,45,.16);
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute; inset:-1px;
+      background:linear-gradient(135deg, rgba(255,45,45,.28), rgba(255,0,56,.16));
+      opacity:.12;
+      pointer-events:none;
+    }
+    .card > *{position:relative}
+    .hero-card{padding:18px}
+    .hero-card h2{margin:0 0 8px; font-size:18px; text-transform:uppercase; letter-spacing:.6px}
+    .note{color:var(--muted); font-size:13px}
+
+    .mini{
+      display:grid; gap:12px; grid-template-columns:1fr 1fr;
+      margin-top:12px;
+    }
+    .kpi{
+      padding:14px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);
+    }
+    .kpi .num{font-size:22px; font-weight:900}
+    .kpi .lbl{color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.6px}
+
+    /* Sections */
+    section{padding:44px 0}
+    .section-title{
+      font-size:28px; margin:0 0 10px;
+      text-transform:uppercase; letter-spacing:.8px;
+    }
+    .section-sub{color:var(--muted); margin:0 0 18px}
+
+    .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+    @media (max-width: 920px){.grid-3{grid-template-columns:1fr}}
+
+    .item{padding:16px}
+    .item h3{margin:10px 0 8px; font-size:18px; text-transform:uppercase; letter-spacing:.7px}
+    .item p{margin:0; color:var(--muted)}
+
+    .icon{
+      width:44px; height:44px; border-radius:14px;
+      display:grid; place-items:center;
+      border:1px solid rgba(255,45,45,.35);
+      background:rgba(255,45,45,.08);
+      box-shadow: 0 0 22px rgba(255,45,45,.10);
+      font-size:18px;
+    }
+
+    .thumb{
+      height:120px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(300px 120px at 20% 30%, rgba(255,45,45,.40), transparent 70%),
+        radial-gradient(320px 160px at 80% 30%, rgba(255,0,56,.22), transparent 70%),
+        linear-gradient(135deg, rgba(255,0,56,.10), rgba(255,255,255,.03));
+      margin-bottom:12px;
+      position:relative;
+      overflow:hidden;
+    }
+    .thumb::after{
+      content:"";
+      position:absolute; inset:-30px;
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
+      transform:translateX(-40%) rotate(10deg);
+      opacity:.30;
+      animation: sweep 3.6s infinite;
+    }
+    @keyframes sweep{
+      0%{transform:translateX(-60%) rotate(10deg)}
+      60%{transform:translateX(80%) rotate(10deg)}
+      100%{transform:translateX(80%) rotate(10deg)}
+    }
+
+    /* ===== ДОБАВЛЕНО: фото для "Игрок недели" (не трогаем остальное) ===== */
+    .player-photo{
+      height:180px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      margin-bottom:12px;
+      overflow:hidden;
+      background:rgba(0,0,0,.20);
+      position:relative;
+    }
+    .player-photo img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      filter: contrast(1.05) saturate(1.05);
+    }
+    .player-title{
+      font-size:18px;
+      text-transform:uppercase;
+      letter-spacing:.7px;
+      margin:10px 0 8px;
+    }
+    /* ================================================================ */
+
+    /* FAQ */
+    details{
+      border:1px solid rgba(255,45,45,.16);
+      border-radius:16px;
+      padding:14px 14px;
+      background:rgba(255,255,255,.04);
+    }
+    details + details{margin-top:10px}
+    summary{cursor:pointer; font-weight:900; text-transform:uppercase; letter-spacing:.6px}
+    summary::marker{color:var(--red)}
+    details p{color:var(--muted); margin:10px 0 0}
+
+    /* Contact */
+    .contact{
+      display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:start
+    }
+    @media (max-width: 920px){.contact{grid-template-columns:1fr}}
+    form{padding:18px}
+    label{
+      display:block; font-size:12px; color:var(--muted);
+      margin:10px 0 6px; text-transform:uppercase; letter-spacing:.7px
+    }
+    input, textarea, select{
+      width:100%; padding:12px 12px; border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(5,6,10,.60);
+      color:var(--text);
+      outline:none;
+    }
+    textarea{min-height:120px; resize:vertical}
+    input:focus, textarea:focus, select:focus{
+      border-color:rgba(255,45,45,.55);
+      box-shadow:0 0 0 4px rgba(255,45,45,.12)
+    }
+
+    .pill{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:10px 12px; border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);
+    }
+    .pill b{letter-spacing:.6px; text-transform:uppercase}
+    .warn{
+      color:#ffd2d2;
+      border-color:rgba(255,45,45,.25);
+      background:rgba(255,45,45,.06);
+    }
+
+    /* Footer */
+    footer{
+      padding:26px 0 34px;
+      color:var(--muted);
+      border-top:1px solid rgba(255,45,45,.14);
+      position:relative;
+      z-index:2;
+    }
+
+    /* Reveal */
+    .fade{opacity:0; transform:translateY(12px); transition:.6s ease}
+    .fade.show{opacity:1; transform:none}
+
+    /* Small helper */
+    .row{display:flex; gap:10px; flex-wrap:wrap}
+    .hr{height:1px; background:rgba(255,45,45,.14); margin:14px 0;}
+
+    /* ===== MODAL (ANKETA) ===== */
+    .modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      z-index:1000;
+    }
+    .modal.active{display:block}
+
+    .modal-overlay{
+      position:absolute;
+      inset:0;
+      background:rgba(0,0,0,.82);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-box{
+      position:relative;
+      max-width:560px;
+      margin:6vh auto;
+      padding:22px;
+      border-radius:18px;
+      border:1px solid rgba(255,45,45,.30);
+      background: linear-gradient(180deg, rgba(10,10,10,.92), rgba(5,5,5,.92));
+      box-shadow: 0 0 45px rgba(255,0,56,.22), 0 0 25px rgba(255,45,45,.18);
+      overflow:hidden;
+    }
+    .modal-box::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(420px 180px at 10% 0%, rgba(255,45,45,.25), transparent 60%),
+        radial-gradient(420px 180px at 90% 0%, rgba(255,0,56,.18), transparent 60%);
+      opacity:.65;
+      pointer-events:none;
+    }
+    .modal-box > *{position:relative}
+
+    .modal-box h2{
+      margin:0 0 6px;
+      text-transform:uppercase;
+      letter-spacing:.9px;
+      color:#ff2d2d;
+      text-shadow:0 0 14px rgba(255,45,45,.22);
+    }
+    .modal-sub{
+      margin:0 0 14px;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .modal-actions{
+      display:flex;
+      gap:10px;
+      margin-top:18px;
+      flex-wrap:wrap;
+    }
+  </style>
+</head>
+
+<body class="fx">
+  <header class="nav">
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <span>interpanic</span>
+      </div>
+
+      <nav class="nav-links" aria-label="Навигация">
+        <a href="#about">О нас</a>
+        <a href="#features">Условия</a>
+        <a href="#work">Опыт</a>
+        <a href="#pricing">Набор</a>
+        <a href="#playerweek">Игрок недели</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Заявка</a>
+      </nav>
+
+      <a class="btn btn-primary" href="#" id="joinBtn">ВСТУПИТЬ</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container grid-hero">
+        <div class="fade">
+          <div class="tag"><span class="dot"></span><b>Rust clan</b> · доминация · медийка</div>
+          <h1>Interpanic</h1>
+          <p class="lead">
+            Мы не «катаем вайп». Мы <b>забираем сервер</b>.
+            Ищем сильных игроков с <b>3000+ часов</b>, мозгами и дисциплиной.
+          </p>
+          <div class="cta">
+            <a class="btn btn-primary" href="#" id="joinBtn2">Оставить заявку</a>
+            <a class="btn btn-outline-red" href="#features">Требования</a>
+            <a class="btn" href="#work">Что делаем</a>
+          </div>
+        </div>
+
+        <aside class="card hero-card fade">
+          <h2>Сразу по делу</h2>
+          <p class="note" style="margin:0 0 10px">
+            Если ты «solo enjoyer» без связи — мимо. Нам нужны таланты, готовые делать грязь командой.
+          </p>
+
+          <div class="mini">
+            <div class="kpi">
+              <div class="num">3000+</div>
+              <div class="lbl">минимум часов</div>
+            </div>
+            <div class="kpi">
+              <div class="num">Микрофон</div>
+              <div class="lbl">обязательно</div>
+            </div>
+            <div class="kpi">
+              <div class="num">Роль</div>
+              <div class="lbl">каждому</div>
+            </div>
+            <div class="kpi">
+              <div class="num">Медийка</div>
+              <div class="lbl">в приоритете</div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="row">
+            <button class="btn" id="copyDiscordBtn" type="button">Скопировать Discord</button>
+            <a class="btn" href="#contact">Форма</a>
+          </div>
+
+          <p class="note" style="margin:12px 0 0">
+            Discord: <b id="discordTag">discord.gg/MptydUCHq3</b>
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about">
+      <div class="container">
+        <h2 class="section-title fade">О нас</h2>
+        <p class="section-sub fade">Коротко: кто мы, зачем мы здесь, и почему нас будут помнить.</p>
+
+        <div class="card" style="padding:18px">
+          <p style="margin:0; color:var(--muted)">
+            <b style="color:var(--text)">interpanic</b> — Клан по расту, который строится вокруг двух вещей:
+            <b style="color:var(--text)">доминация</b> и <b style="color:var(--text)">медийность</b>.
+            Мы собираем игроков, которые умеют давить, не теряются в замесах и понимают командную игру.
+          </p>
+          <div class="hr"></div>
+          <div class="row">
+            <span class="pill warn">⚠️ <b>Цель</b> — контроль РТшек, рейды топов, диктатура по вайпу.</span>
+            <span class="pill">🎥 <b>Медийка</b> — клипы, хайлайты, узнаваемый стиль.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features">
+      <div class="container">
+        <h2 class="section-title fade">Условия</h2>
+        <p class="section-sub fade">Если это про тебя — добро пожаловать. Если нет — не трать своё время.</p>
+
+        <div class="grid-3">
+          <div class="card item fade">
+            <div class="icon" aria-hidden="true">🩸</div>
+            <h3>Отбор без жалости</h3>
+            <p>3000+ часов. Адекватность. Коммуникация. Без «я не умею коллить» и «я в тильте».</p>
+          </div>
+
+          <div class="card item fade">
+            <div class="icon" aria-hidden="true">🗡️</div>
+            <h3>Дисциплина</h3>
+            <p>Роли, коллы, тайминги. На рейде и защите не «по приколу», а по задаче.</p>
+          </div>
+
+          <div class="card item fade">
+            <div class="icon" aria-hidden="true">☠️</div>
+            <h3>Агрессия</h3>
+            <p>Мы не просим место. Мы его забираем. Контроль, давление, доминация на сервере.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WORK -->
+    <section id="work">
+      <div class="container">
+        <h2 class="section-title fade">Что мы делаем</h2>
+        <p class="section-sub fade">Это не «ферма ради фермы». Это вайп под контроль.</p>
+
+        <div class="grid-3">
+          <div class="card item fade">
+            <div class="thumb" aria-hidden="true"></div>
+            <h3>Контроль ключевых точек</h3>
+            <p>Монументы, Oil, Cargo, ключевые маршруты. Кто не с нами — тот под нами.</p>
+          </div>
+
+          <div class="card item fade">
+            <div class="thumb" aria-hidden="true"></div>
+            <h3>Рейды топ-баз</h3>
+            <p>Разведка → тайминги → вход → лут-контроль. Без хаоса и суеты.</p>
+          </div>
+
+          <div class="card item fade">
+            <div class="thumb" aria-hidden="true"></div>
+            <h3>Медийный стиль</h3>
+            <p>Клипы, хайлайты, нарезки. interpanic должен звучать в комьюнити.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICING -->
+    <section id="pricing">
+      <div class="container">
+        <h2 class="section-title fade">Набор</h2>
+        <p class="section-sub fade">Выбирай формат. Но помни: слабые долго не живут.</p>
+
+        <div class="grid-3">
+          <div class="card item fade">
+            <h3>Основной состав</h3>
+            <p style="margin:0 0 10px; color:var(--muted)">Для тех, кто готов играть на результат.</p>
+            <div class="hr"></div>
+            <p class="note" style="margin:0">
+              ✅ 3000+ часов<br>
+              ✅ стабильный онлайн<br>
+              ✅ участие в рейдах/защите<br>
+              ✅ выполнение ролей
+            </p>
+            <div style="margin-top:14px">
+              <a class="btn btn-primary" href="#" data-open-join>Заявка</a>
+            </div>
+          </div>
+
+          <div class="card item fade">
+            <h3>Испытательный срок</h3>
+            <p style="margin:0 0 10px; color:var(--muted)">Если скилл есть — докажи делом.</p>
+            <div class="hr"></div>
+            <p class="note" style="margin:0">
+              🔻 проверка коммуникации<br>
+              🔻 поведение в тильте<br>
+              🔻 понимание задач<br>
+              🔻 игра в команде
+            </p>
+            <div style="margin-top:14px">
+              <a class="btn btn-outline-red" href="#" data-open-join>Пройти отбор</a>
+            </div>
+          </div>
+
+          <div class="card item fade">
+            <h3>Медийные игроки</h3>
+            <p style="margin:0 0 10px; color:var(--muted)">Стримеры / клиперы / монтажёры.</p>
+            <div class="hr"></div>
+            <p class="note" style="margin:0">
+              🎥 контент с вайпов<br>
+              🎬 хайлайты, нарезки<br>
+              🧷 узнаваемый стиль<br>
+              🔥 рост медийки клана
+            </p>
+            <div style="margin-top:14px">
+              <a class="btn" href="#" data-open-join>Связаться</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PLAYER OF THE WEEK -->
+    <section id="playerweek">
+      <div class="container">
+        <h2 class="section-title fade">Игрок недели</h2>
+        <p class="section-sub fade">Те, кто реально тащит вайп — получают уважение и место в истории.</p>
+
+        <div class="grid-3">
+          <div class="card item fade">
+            <div class="player-photo" aria-hidden="true">
+              <img src="./ivan.jpg" alt="Игрок недели — режу тёлок">
+
+            </div>
+            <h3 class="player-title">РЕЖУ ТЁЛОК | Иван</h3>
+            <p>Стал игроком недели, потому что <b style="color:var(--text)">забилдил крутую базу</b> и внёс <b style="color:var(--text)">большой вклад в вайп</b>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq">
+      <div class="container">
+        <h2 class="section-title fade">FAQ</h2>
+        <p class="section-sub fade">Читай. Потом заполняй. Экономим время.</p>
+
+        <details class="fade">
+          <summary>Сколько часов нужно?</summary>
+          <p>Минимум <b>3000</b>. Исключения редкие: только если ты реально сильный и это видно сразу.</p>
+        </details>
+
+        <details class="fade">
+          <summary>Нужен ли микрофон?</summary>
+          <p>Да. Без связи ты не игрок, а статист. В interpanic статистов не держим.</p>
+        </details>
+
+        <details class="fade">
+          <summary>Как проходит отбор?</summary>
+          <p>Заявка → вопросы → проверка → решение. Если токсичишь и сливаешь тимплей — вылетаешь.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact">
+      <div class="container">
+        <h2 class="section-title fade">Заявка</h2>
+        <p class="section-sub fade">Жмёшь “ВСТУПИТЬ” — заполняешь анкету. Всё просто.</p>
+
+        <div class="contact">
+          <div class="card" style="padding:18px">
+            <h3 style="margin:0 0 8px; text-transform:uppercase; letter-spacing:.7px">Перед заявкой</h3>
+            <p class="note" style="margin:0 0 12px">Пиши честно. Мы всё равно проверим.</p>
+
+            <div class="row">
+              <span class="pill warn">🧨 <b>Требование</b> — 3000+ часов</span>
+              <span class="pill">🎙️ <b>Микрофон</b> — обязателен</span>
+              <span class="pill">🧠 <b>Тимплей</b> — без истерик</span>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="row">
+              <span class="pill">Discord: <b>discord.gg/MptydUCHq3</b></span>
+              <span class="pill">Telegram: <b>@interpanic</b></span>
+            </div>
+          </div>
+
+          <div class="card" style="padding:18px">
+            <h3 style="margin:0 0 8px; text-transform:uppercase; letter-spacing:.7px">Быстрый вход</h3>
+            <p class="note" style="margin:0 0 14px">Открыть анкету прямо отсюда.</p>
+            <a class="btn btn-primary" href="#" data-open-join>Открыть анкету</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container" style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+        <span>© <span id="y"></span> interpanic</span>
+        <span>Rust clan · domination · media</span>
+      </div>
+    </footer>
+  </main>
+
+  <!-- JOIN FORM MODAL (внутри body — это важно!) -->
+  <div class="modal" id="joinModal" aria-hidden="true">
+    <div class="modal-overlay"></div>
+
+    <div class="modal-box" role="dialog" aria-modal="true" aria-label="Заявка в interpanic">
+      <h2>Заявка в interpanic</h2>
+      <p class="modal-sub">Заполняй честно. Вся информация будет проверяться.</p>
+
+      <form id="joinForm">
+        <label>1. От кого вы узнали о нас?</label>
+        <input name="source" type="text" required placeholder="Друг / Discord / YouTube / Другое">
+
+        <label>2. Сколько вам лет?</label>
+        <input name="age" type="number" required min="0" placeholder="Возраст">
+
+        <label>3. Сколько у вас часов в игре?</label>
+        <input name="hours" type="number" required min="0" placeholder="Например: 3200">
+
+        <label>4. Сколько вы готовы уделять времени нашему клану (в день)?</label>
+        <input name="timePerDay" type="text" required placeholder="Например: 4–6 часов">
+
+        <label>5. На какую должность вы рассчитываете?</label>
+        <select name="role" required>
+          <option value="">Выберите</option>
+          <option>Комбат</option>
+          <option>Фарм</option>
+          <option>Билдер</option>
+          <option>Фермер</option>
+          <option>Коллер</option>
+          <option>Другое</option>
+        </select>
+
+        <label>6. Готовы ли вы пройти проверку?</label>
+        <select name="check" required>
+          <option value="">Выберите</option>
+          <option>Да</option>
+          <option>Нет</option>
+        </select>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary">Отправить заявку</button>
+          <button type="button" class="btn" id="closeModal">Отмена</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // footer year
+    document.getElementById("y").textContent = new Date().getFullYear();
+
+    // copy discord
+    const copyBtn = document.getElementById("copyDiscordBtn");
+    if (copyBtn) {
+      copyBtn.addEventListener("click", async () => {
+        const text = document.getElementById("discordTag")?.textContent?.trim() || "discord.gg/INTERPANIC";
+        try { await navigator.clipboard.writeText(text); alert("Скопировано: " + text); }
+        catch { prompt("Скопируй вручную:", text); }
+      });
+    }
+
+    // reveal on scroll
+    const io = new IntersectionObserver((entries) => {
+      for (const en of entries) if (en.isIntersecting) en.target.classList.add("show");
+    }, { threshold: 0.12 });
+    document.querySelectorAll(".fade").forEach(el => io.observe(el));
+
+    // ===== JOIN MODAL LOGIC =====
+    const joinModal = document.getElementById("joinModal");
+    const closeModal = document.getElementById("closeModal");
+
+    function openJoinModal(e){
+      if (e) e.preventDefault();
+      joinModal.classList.add("active");
+      joinModal.setAttribute("aria-hidden", "false");
+    }
+    function closeJoinModal(){
+      joinModal.classList.remove("active");
+      joinModal.setAttribute("aria-hidden", "true");
+    }
+
+    // кнопка в шапке
+    document.getElementById("joinBtn")?.addEventListener("click", openJoinModal);
+    // кнопка в hero
+    document.getElementById("joinBtn2")?.addEventListener("click", openJoinModal);
+    // любые ссылки с data-open-join
+    document.querySelectorAll("[data-open-join]").forEach(el => el.addEventListener("click", openJoinModal));
+
+    // закрытие
+    closeModal.addEventListener("click", closeJoinModal);
+    joinModal.querySelector(".modal-overlay").addEventListener("click", closeJoinModal);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeJoinModal(); });
+
+    // submit
+    document.getElementById("joinForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      alert("Заявка отправлена. Мы свяжемся с вами после проверки.");
+      e.target.reset();
+      closeJoinModal();
+    });
+  </script>
+</body>
+</html>
