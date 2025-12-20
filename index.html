@@ -110,6 +110,7 @@
       cursor:pointer;
       transition:.18s transform, .18s filter, .18s border-color, .18s background;
       user-select:none;
+      white-space:nowrap;
     }
     .btn:hover{transform:translateY(-1px); border-color:rgba(255,255,255,.18); background:rgba(255,255,255,.08)}
     .btn:active{transform:translateY(0px) scale(.99)}
@@ -244,7 +245,7 @@
       100%{transform:translateX(80%) rotate(10deg)}
     }
 
-    /* ===== ДОБАВЛЕНО: фото для "Игрок недели" (не трогаем остальное) ===== */
+    /* ===== ДОБАВЛЕНО: фото для "Игрок недели" ===== */
     .player-photo{
       height:180px;
       border-radius:16px;
@@ -267,7 +268,24 @@
       letter-spacing:.7px;
       margin:10px 0 8px;
     }
-    /* ================================================================ */
+
+    /* ===== ДОБАВЛЕНО: auth pill в шапке ===== */
+    .auth-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:8px 10px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+      font-size:12px;
+      max-width:260px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    /* ================================================= */
 
     /* FAQ */
     details{
@@ -390,6 +408,15 @@
       margin-top:18px;
       flex-wrap:wrap;
     }
+
+    /* ===== ДОБАВЛЕНО: адаптив для шапки на мобиле (чтобы не багалось) ===== */
+    @media (max-width: 620px){
+      .nav-inner{flex-wrap:wrap}
+      .nav-links{width:100%; overflow:auto; -webkit-overflow-scrolling:touch}
+      .nav-links a{padding:8px 8px}
+      .auth-pill{max-width:100%}
+    }
+    /* ================================================================ */
   </style>
 </head>
 
@@ -411,7 +438,12 @@
         <a href="#contact">Заявка</a>
       </nav>
 
-      <a class="btn btn-primary" href="#" id="joinBtn">ВСТУПИТЬ</a>
+      <!-- ДОБАВЛЕНО: статус + вход discord + вступить (дизайн не ломаем) -->
+      <div class="row" style="align-items:center; justify-content:flex-end">
+        <span class="auth-pill" id="authStatus" title="Авторизация через Discord">Не авторизован</span>
+        <a class="btn btn-outline-red" href="#" id="discordLoginBtn">Войти Discord</a>
+        <a class="btn btn-primary" href="#" id="joinBtn">ВСТУПИТЬ</a>
+      </div>
     </div>
   </header>
 
@@ -614,7 +646,6 @@
           <div class="card item fade">
             <div class="player-photo" aria-hidden="true">
               <img src="./ivan.jpg" alt="Игрок недели — режу тёлок">
-
             </div>
             <h3 class="player-title">РЕЖУ ТЁЛОК | Иван</h3>
             <p>Стал игроком недели, потому что <b style="color:var(--text)">забилдил крутую базу</b> и внёс <b style="color:var(--text)">большой вклад в вайп</b>.</p>
@@ -688,13 +719,20 @@
     </footer>
   </main>
 
-  <!-- JOIN FORM MODAL (внутри body — это важно!) -->
+  <!-- JOIN FORM MODAL -->
   <div class="modal" id="joinModal" aria-hidden="true">
     <div class="modal-overlay"></div>
 
     <div class="modal-box" role="dialog" aria-modal="true" aria-label="Заявка в interpanic">
       <h2>Заявка в interpanic</h2>
       <p class="modal-sub">Заполняй честно. Вся информация будет проверяться.</p>
+
+      <!-- ДОБАВЛЕНО: статус в модалке -->
+      <div class="row" style="margin:0 0 12px;">
+        <span class="pill" id="modalAuthHint">⚠️ Нужно войти через Discord</span>
+        <a class="btn btn-outline-red" href="#" id="modalDiscordLoginBtn">Войти Discord</a>
+      </div>
+      <div class="hr" style="margin:10px 0 12px"></div>
 
       <form id="joinForm">
         <label>1. От кого вы узнали о нас?</label>
@@ -728,18 +766,33 @@
         </select>
 
         <div class="modal-actions">
-          <button type="submit" class="btn btn-primary">Отправить заявку</button>
+          <button type="submit" class="btn btn-primary" id="submitApplicationBtn">Отправить заявку</button>
           <button type="button" class="btn" id="closeModal">Отмена</button>
         </div>
+
+        <!-- ДОБАВЛЕНО: сообщение о лимите -->
+        <p class="note" id="applyOnceHint" style="margin:12px 0 0">
+          ⚠️ Заявку можно отправить <b style="color:var(--text)">только один раз</b>.
+        </p>
       </form>
     </div>
   </div>
 
   <script>
+    // ===========================
+    // CONFIG (ВАЖНО!)
+    // ===========================
+    // Твой backend на Render:
+    const API_BASE = "https://interpanic-backend.onrender.com";
+
+    // ===========================
     // footer year
+    // ===========================
     document.getElementById("y").textContent = new Date().getFullYear();
 
+    // ===========================
     // copy discord
+    // ===========================
     const copyBtn = document.getElementById("copyDiscordBtn");
     if (copyBtn) {
       copyBtn.addEventListener("click", async () => {
@@ -749,13 +802,17 @@
       });
     }
 
+    // ===========================
     // reveal on scroll
+    // ===========================
     const io = new IntersectionObserver((entries) => {
       for (const en of entries) if (en.isIntersecting) en.target.classList.add("show");
     }, { threshold: 0.12 });
     document.querySelectorAll(".fade").forEach(el => io.observe(el));
 
-    // ===== JOIN MODAL LOGIC =====
+    // ===========================
+    // JOIN MODAL LOGIC
+    // ===========================
     const joinModal = document.getElementById("joinModal");
     const closeModal = document.getElementById("closeModal");
 
@@ -763,30 +820,168 @@
       if (e) e.preventDefault();
       joinModal.classList.add("active");
       joinModal.setAttribute("aria-hidden", "false");
+      refreshAuthAndUi(); // обновляем статус при открытии
     }
     function closeJoinModal(){
       joinModal.classList.remove("active");
       joinModal.setAttribute("aria-hidden", "true");
     }
 
-    // кнопка в шапке
     document.getElementById("joinBtn")?.addEventListener("click", openJoinModal);
-    // кнопка в hero
     document.getElementById("joinBtn2")?.addEventListener("click", openJoinModal);
-    // любые ссылки с data-open-join
     document.querySelectorAll("[data-open-join]").forEach(el => el.addEventListener("click", openJoinModal));
 
-    // закрытие
     closeModal.addEventListener("click", closeJoinModal);
     joinModal.querySelector(".modal-overlay").addEventListener("click", closeJoinModal);
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeJoinModal(); });
 
-    // submit
-    document.getElementById("joinForm").addEventListener("submit", (e) => {
+    // ===========================
+    // DISCORD LOGIN BUTTONS
+    // ===========================
+    function goDiscordLogin(e){
+      if (e) e.preventDefault();
+      window.location.href = `${API_BASE}/auth/discord`;
+    }
+    document.getElementById("discordLoginBtn")?.addEventListener("click", goDiscordLogin);
+    document.getElementById("modalDiscordLoginBtn")?.addEventListener("click", goDiscordLogin);
+
+    // ===========================
+    // AUTH + APPLY ONCE (client-side + backend)
+    // ===========================
+    let currentUser = null; // { id, username, ... } if logged in
+
+    const authStatusEl = document.getElementById("authStatus");
+    const modalAuthHintEl = document.getElementById("modalAuthHint");
+    const submitBtn = document.getElementById("submitApplicationBtn");
+
+    function appliedStorageKey(discordId){
+      return `interpanic_applied_${discordId}`;
+    }
+
+    function setSubmitEnabled(enabled){
+      submitBtn.disabled = !enabled;
+      submitBtn.style.opacity = enabled ? "1" : ".55";
+      submitBtn.style.cursor = enabled ? "pointer" : "not-allowed";
+    }
+
+    function setAuthStatusText(text){
+      if (authStatusEl) authStatusEl.textContent = text;
+    }
+
+    function setModalHint(text, isWarn=true){
+      if (!modalAuthHintEl) return;
+      modalAuthHintEl.textContent = text;
+      modalAuthHintEl.classList.toggle("warn", !!isWarn);
+    }
+
+    async function fetchMe(){
+      try{
+        const r = await fetch(`${API_BASE}/me`, { credentials: "include" });
+        if(!r.ok) return null;
+        const data = await r.json();
+        return data?.user || null;
+      }catch{
+        return null;
+      }
+    }
+
+    function updateUiByAuth(){
+      if (!currentUser){
+        setAuthStatusText("Не авторизован");
+        setModalHint("⚠️ Нужно войти через Discord", true);
+        setSubmitEnabled(false);
+        return;
+      }
+
+      // logged in
+      const name = currentUser.username || "Discord";
+      setAuthStatusText(`Вошёл как: ${name}`);
+      setModalHint(`✅ Авторизован: ${name}`, false);
+
+      // apply-once check (client-side)
+      const key = appliedStorageKey(currentUser.id);
+      const already = localStorage.getItem(key) === "1";
+      if (already){
+        setModalHint("✅ Заявка уже отправлена (повторно нельзя)", false);
+        setSubmitEnabled(false);
+        submitBtn.textContent = "Заявка уже отправлена";
+      } else {
+        setSubmitEnabled(true);
+        submitBtn.textContent = "Отправить заявку";
+      }
+    }
+
+    async function refreshAuthAndUi(){
+      currentUser = await fetchMe();
+      updateUiByAuth();
+    }
+
+    // обновляем при загрузке
+    refreshAuthAndUi();
+
+    // ===========================
+    // SUBMIT -> backend (1 раз)
+    // ===========================
+    document.getElementById("joinForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      alert("Заявка отправлена. Мы свяжемся с вами после проверки.");
-      e.target.reset();
-      closeJoinModal();
+
+      // must login
+      if (!currentUser){
+        alert("Сначала войди через Discord, потом отправляй заявку.");
+        return;
+      }
+
+      // client-side apply-once
+      const key = appliedStorageKey(currentUser.id);
+      if (localStorage.getItem(key) === "1"){
+        alert("Заявка уже отправлена. Повторно нельзя.");
+        updateUiByAuth();
+        return;
+      }
+
+      // собираем данные
+      const fd = new FormData(e.target);
+      const payload = Object.fromEntries(fd.entries());
+
+      // отправляем в backend
+      try{
+        setSubmitEnabled(false);
+        submitBtn.textContent = "Отправляю...";
+
+        const r = await fetch(`${API_BASE}/applications`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        // если backend тоже делает apply-once — он может вернуть 409
+        if (r.status === 409){
+          localStorage.setItem(key, "1"); // на всякий случай синхронизируем
+          alert("Заявка уже была отправлена ранее. Повторно нельзя.");
+          await refreshAuthAndUi();
+          return;
+        }
+
+        if (!r.ok){
+          const txt = await r.text().catch(()=>"");
+          alert("Ошибка отправки заявки. " + (txt ? ("Детали: " + txt) : ""));
+          await refreshAuthAndUi();
+          return;
+        }
+
+        // success
+        localStorage.setItem(key, "1");
+        alert("Заявка отправлена. Мы свяжемся с вами после проверки.");
+        e.target.reset();
+        closeJoinModal();
+        await refreshAuthAndUi();
+
+      }catch(err){
+        console.error(err);
+        alert("Не удалось отправить заявку (ошибка сети).");
+        await refreshAuthAndUi();
+      }
     });
   </script>
 </body>
