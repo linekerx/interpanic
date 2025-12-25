@@ -2,986 +2,1434 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>interpanic</title>
-  <meta name="description" content="interpanic — Rust клан. Набор игроков 3000+ часов. Доминация, контроль сервера, медийка." />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Евгений Тютюнов — CV</title>
+  <meta name="description" content="Евгений Тютюнов — мастер тренер, методолог, архитектор обучения." />
+  <meta name="theme-color" content="#080103" />
+
+  <!-- Montserrat ExtraBold for name -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap" rel="stylesheet">
 
   <style>
+    /* OPTIONAL: If you have Gilroy files, put them here:
+       /fonts/Gilroy-Regular.woff2
+       /fonts/Gilroy-Medium.woff2
+       /fonts/Gilroy-Semibold.woff2 (optional)
+       If you don't have them — site will use system sans-serif (still OK).
+    */
+    @font-face{
+      font-family: "Gilroy";
+      src: url("fonts/Gilroy-Regular.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face{
+      font-family: "Gilroy";
+      src: url("fonts/Gilroy-Medium.woff2") format("woff2");
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face{
+      font-family: "Gilroy";
+      src: url("fonts/Gilroy-Semibold.woff2") format("woff2");
+      font-weight: 600;
+      font-style: normal;
+      font-display: swap;
+    }
+
     :root{
-      --bg:#05060a;
-      --bg2:#070915;
+      --bg:#080103;
+      --fg:#f2f2f2;
+      --muted:rgba(242,242,242,.72);
+      --line:rgba(242,242,242,.14);
+      --card:rgba(255,255,255,.06);
+      --shadow: 0 26px 90px rgba(0,0,0,.6);
+      --radius:22px;
+      --radius2:28px;
+      --accent:#FE2069;
+      --tap:44px;
 
-      --card:rgba(10,12,22,.78);
-      --text:#e9ecff;
-      --muted:#a3aac8;
+      --padX: 18px;
+      --padTop: calc(18px + env(safe-area-inset-top));
+      --padBottom: calc(28px + env(safe-area-inset-bottom));
 
-      --red:#ff2d2d;
-      --red2:#ff0038;
-      --cyan:#00f5ff;
-
-      --line:rgba(255,255,255,.10);
-      --r:18px;
-      --shadow: 0 30px 80px rgba(0,0,0,.55);
-      --glow: 0 0 28px rgba(255,45,45,.20), 0 0 22px rgba(0,245,255,.10);
+      --font-name: "Montserrat", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      --font-body: "Gilroy", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
     }
 
     *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
+    html,body{height:100%}
+    html{color-scheme:dark}
     body{
       margin:0;
-      font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;
-      color:var(--text);
-      background:
-        radial-gradient(900px 600px at 18% 10%, rgba(255,45,45,.26), transparent 62%),
-        radial-gradient(900px 600px at 85% 12%, rgba(255,0,56,.18), transparent 60%),
-        radial-gradient(1000px 800px at 50% 88%, rgba(255,45,45,.14), transparent 58%),
-        linear-gradient(180deg, var(--bg), var(--bg2));
+      font-family: var(--font-body);
+      background: var(--bg);
+      color:var(--fg);
       overflow-x:hidden;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
 
-    a{color:inherit; text-decoration:none}
-    .container{max-width:1120px; margin:0 auto; padding:0 20px}
-
-    /* Anarchy texture / scanlines */
-    .fx::before{
-      content:"";
-      position:fixed; inset:0; pointer-events:none; z-index:1;
+    /* Background */
+    #snow{
+      position:fixed; inset:0;
+      width:100%; height:100%;
+      z-index:0; pointer-events:none;
+      opacity:.9;
+    }
+    .noise{
+      position:fixed; inset:0;
+      z-index:1; pointer-events:none;
       background:
-        repeating-linear-gradient(to bottom,
-          rgba(255,255,255,.02), rgba(255,255,255,.02) 1px,
-          transparent 1px, transparent 3px);
-      mix-blend-mode:overlay;
-      opacity:.38;
+        radial-gradient(900px 520px at 10% 10%, rgba(254,32,105,.08), transparent 55%),
+        radial-gradient(820px 520px at 90% 30%, rgba(255,255,255,.05), transparent 60%),
+        radial-gradient(800px 520px at 45% 90%, rgba(254,32,105,.06), transparent 60%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E");
+      mix-blend-mode: screen;
+      opacity:.35;
     }
-    .fx::after{
+
+    /* Layout */
+    .wrap{
+      position:relative; z-index:2;
+      min-height:100%;
+      padding: var(--padTop) var(--padX) var(--padBottom);
+      display:flex; justify-content:center;
+    }
+    .container{ width:min(1120px, 100%); display:flex; flex-direction:column; gap:14px; }
+
+    /* Topbar */
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding: 12px 14px;
+      border:1px solid rgba(254,32,105,.22);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow: 0 20px 70px rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      position:relative;
+      overflow:hidden;
+    }
+    .topbar:before{
       content:"";
-      position:fixed; inset:-40px; pointer-events:none; z-index:1;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
-      opacity:.33;
-      mix-blend-mode:soft-light;
+      position:absolute; inset:-2px;
+      background: linear-gradient(90deg, transparent, rgba(254,32,105,.16), transparent);
+      transform: skewX(-18deg);
+      opacity:.55;
+      pointer-events:none;
     }
 
-    /* Nav */
-    header.nav{
-      position:sticky; top:0; z-index:50;
-      backdrop-filter: blur(14px);
-      background:rgba(5,6,10,.74);
-      border-bottom:1px solid rgba(255,45,45,.22);
-      box-shadow: 0 10px 40px rgba(0,0,0,.35);
+    .brand{display:flex; align-items:center; gap:10px; min-width:0; position:relative; z-index:1;}
+    .mark{
+      width:10px;height:10px;border-radius:50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 5px rgba(254,32,105,.12), 0 0 32px rgba(254,32,105,.35);
+      flex:0 0 auto;
     }
-    .nav-inner{display:flex; align-items:center; justify-content:space-between; gap:14px; padding:12px 0}
-    .brand{display:flex; align-items:center; gap:12px; font-weight:900; letter-spacing:.6px; text-transform:uppercase}
-    .logo{
-      width:36px; height:36px; border-radius:12px;
+    .name{
+      font-family: var(--font-name);
+      font-weight: 800;
+      letter-spacing:.9px;
+      text-transform: uppercase;
+      font-size: 13px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      max-width: 46vw;
+    }
+    .role{
+      color: rgba(242,242,242,.72);
+      font-size:12px;
+      letter-spacing:.3px;
+      text-transform: uppercase;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      max-width: 58vw;
+      margin-top:3px;
+    }
 
-      /* ЛОГОТИП */
-      background:url("./anarchylogo1.png") center / cover no-repeat;
+    .controls{display:flex; align-items:center; gap:10px; position:relative; z-index:1;}
+    .lang{
+      display:flex;
+      border:1px solid rgba(255,255,255,.16);
+      border-radius: 14px;
+      overflow:hidden;
+      background: rgba(0,0,0,.18);
+      height: var(--tap);
+    }
+    .lang button{
+      border:0; border-right:1px solid rgba(255,255,255,.12);
+      background: transparent;
+      color: rgba(242,242,242,.75);
+      padding: 0 12px;
+      font-size: 13px;
+      cursor:pointer;
+      min-width: 52px;
+      height: var(--tap);
+      touch-action: manipulation;
+      text-transform: uppercase;
+      letter-spacing:.4px;
+      font-family: var(--font-body);
+    }
+    .lang button:last-child{border-right:0}
+    .lang button.active{
+      background: rgba(254,32,105,.14);
+      color: var(--fg);
+      box-shadow: inset 0 0 0 1px rgba(254,32,105,.22);
+    }
 
-      box-shadow: var(--glow);
+    .btn{
+      appearance:none;
+      border:1px solid rgba(254,32,105,.24);
+      background: rgba(254,32,105,.10);
+      color: var(--fg);
+      padding: 0 12px;
+      border-radius: 14px;
+      font-size: 13px;
+      cursor:pointer;
+      height: var(--tap);
+      display:flex; align-items:center; gap:8px;
+      white-space:nowrap;
+      touch-action: manipulation;
+      text-transform: uppercase;
+      letter-spacing:.5px;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      font-family: var(--font-body);
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      background: rgba(254,32,105,.16);
+      border-color: rgba(254,32,105,.36);
+    }
+
+    /* Grid */
+    .grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:14px;
+      align-items: stretch;
+    }
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr;} }
+
+    /* Slide-like cards */
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      overflow:hidden;
       position:relative;
     }
-    .logo::after{
+    .card:before{
       content:"";
-      position:absolute; inset:8px;
-      border-radius:10px;
-      border:1px solid rgba(255,255,255,.18);
-      transform:rotate(8deg);
+      position:absolute; left:-40px; top:-60px;
+      width:220px; height:220px;
+      background: radial-gradient(circle at 30% 30%, rgba(254,32,105,.26), transparent 60%);
+      opacity:.85;
+      pointer-events:none;
     }
-    .nav-links{display:flex; gap:10px; flex-wrap:wrap}
-    .nav-links a{
-      padding:8px 10px; border-radius:14px;
-      color:var(--muted);
-      border:1px solid transparent;
-    }
-    .nav-links a:hover{
-      color:var(--text);
-      border-color:rgba(255,45,45,.30);
-      background:rgba(255,45,45,.08);
-    }
-
-    /* Buttons */
-    .btn{
-      display:inline-flex; align-items:center; justify-content:center; gap:10px;
-      padding:12px 16px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.05);
-      color:var(--text);
-      cursor:pointer;
-      transition:.18s transform, .18s filter, .18s border-color, .18s background;
-      user-select:none;
-      white-space:nowrap;
-    }
-    .btn:hover{transform:translateY(-1px); border-color:rgba(255,255,255,.18); background:rgba(255,255,255,.08)}
-    .btn:active{transform:translateY(0px) scale(.99)}
-
-    .btn-primary{
-      border:0;
-      background:linear-gradient(135deg, var(--red2), var(--red));
-      box-shadow: 0 18px 50px rgba(255,0,56,.22), 0 0 30px rgba(255,45,45,.22);
-      text-transform:uppercase;
-      letter-spacing:.6px;
-      font-weight:900;
-    }
-    .btn-primary:hover{filter:brightness(1.08)}
-    .btn-outline-red{
-      border-color:rgba(255,45,45,.35);
-      background:rgba(255,45,45,.07);
+    .card:after{
+      content:"";
+      position:absolute; right:-80px; bottom:-80px;
+      width:260px; height:260px;
+      background: radial-gradient(circle at 40% 40%, rgba(254,32,105,.18), transparent 60%);
+      opacity:.75;
+      pointer-events:none;
     }
 
     /* Hero */
-    main{position:relative; z-index:2}
-    .hero{padding:64px 0 24px; position:relative; z-index:2}
-    .grid-hero{display:grid; grid-template-columns:1.2fr .8fr; gap:18px; align-items:stretch}
-    @media (max-width: 920px){.grid-hero{grid-template-columns:1fr}}
-
-    .tag{
-      display:inline-flex; align-items:center; gap:10px;
-      padding:8px 12px; border-radius:999px;
-      border:1px solid rgba(255,45,45,.35);
-      background:rgba(255,45,45,.09);
-      color:var(--muted);
-      width:fit-content;
+    .hero{ padding: 18px 18px 12px; position:relative; z-index:1; }
+    .heroTop{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      justify-content:space-between;
     }
-    .tag b{color:var(--text)}
-    .tag .dot{
-      width:8px; height:8px; border-radius:999px;
-      background:var(--red);
-      box-shadow:0 0 18px rgba(255,45,45,.42);
+
+    .heroTop > div:first-child{ min-width:0; padding-right: 6px; }
+    .avatar{
+      width: 185px; height: 300px;
+      border-radius: 22px;
+      border: 1px solid rgba(254,32,105,.22);
+      background: rgba(255,255,255,.05);
+      overflow:hidden;
+      flex:0 0 auto;
+      box-shadow: 0 18px 70px rgba(0,0,0,.55);
+      position:relative;
+    }
+    .avatar:after{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(180deg, transparent, rgba(254,32,105,.10));
+      pointer-events:none;
+    }
+    .avatar{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar img{
+  width: auto;
+  height: 300px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 30px rgba(0,0,0,.6));
+}
+
+
+
+    .kicker{
+      color: rgba(242,242,242,.78);
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      font-size: 12px;
+      margin:0 0 10px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .kicker .line{
+      height:1px; flex:1;
+      background: linear-gradient(90deg, rgba(254,32,105,.7), transparent);
+      opacity:.7;
     }
 
     h1{
-      font-size:54px;
+      margin: 0 0 10px;
+      font-size: clamp(30px, 4.6vw, 54px);
       line-height:1.02;
-      margin:14px 0 10px;
-      text-transform:uppercase;
-      letter-spacing:.8px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-family: var(--font-name);
+      font-weight: 800;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
-    @media (max-width: 560px){h1{font-size:40px}}
-    .lead{color:var(--muted); font-size:18px; margin:0 0 16px}
-    .cta{display:flex; gap:12px; flex-wrap:wrap; margin-top:16px}
+    .subtitle{
+      margin:0 0 12px;
+      color: rgba(242,242,242,.74);
+      font-size: clamp(14px, 3.6vw, 16px);
+      line-height:1.7;
+      max-width: 90ch;
+    }
 
-    /* Cards */
-    .card{
-      background:var(--card);
-      border:1px solid rgba(255,45,45,.16);
-      border-radius:var(--r);
-      box-shadow:var(--shadow);
-      position:relative;
-      overflow:hidden;
+    .meta{
+      display:flex; flex-wrap:wrap; gap:10px;
+      margin-top:10px;
     }
-    .card::before{
-      content:"";
-      position:absolute; inset:-1px;
-      background:linear-gradient(135deg, rgba(255,45,45,.28), rgba(255,0,56,.16));
-      opacity:.12;
-      pointer-events:none;
+    .pill{
+      padding:9px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      color: rgba(242,242,242,.86);
+      font-size:12px;
+      white-space:nowrap;
+      text-transform: uppercase;
+      letter-spacing:.5px;
     }
-    .card > *{position:relative}
-    .hero-card{padding:18px}
-    .hero-card h2{margin:0 0 8px; font-size:18px; text-transform:uppercase; letter-spacing:.6px}
-    .note{color:var(--muted); font-size:13px}
-
-    .mini{
-      display:grid; gap:12px; grid-template-columns:1fr 1fr;
-      margin-top:12px;
+    .pill.accent{
+      border-color: rgba(254,32,105,.28);
+      background: rgba(254,32,105,.10);
+      box-shadow: inset 0 0 0 1px rgba(254,32,105,.10);
     }
-    .kpi{
-      padding:14px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.04);
-    }
-    .kpi .num{font-size:22px; font-weight:900}
-    .kpi .lbl{color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.6px}
 
     /* Sections */
-    section{padding:44px 0}
-    .section-title{
-      font-size:28px; margin:0 0 10px;
-      text-transform:uppercase; letter-spacing:.8px;
+    .section{
+      padding: 14px 18px 16px;
+      border-top: 1px solid rgba(255,255,255,.10);
+      position:relative;
+      z-index:1;
     }
-    .section-sub{color:var(--muted); margin:0 0 18px}
-
-    .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
-    @media (max-width: 920px){.grid-3{grid-template-columns:1fr}}
-
-    .item{padding:16px}
-    .item h3{margin:10px 0 8px; font-size:18px; text-transform:uppercase; letter-spacing:.7px}
-    .item p{margin:0; color:var(--muted)}
-
-    .icon{
-      width:44px; height:44px; border-radius:14px;
+    .sectionHead{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      margin-bottom:10px;
+    }
+    .h2{
+      margin:0;
+      font-size: 13px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: rgba(242,242,242,.92);
+      display:flex; align-items:center; gap:10px;
+    }
+    .num{
+      width:28px; height:28px;
+      border-radius: 10px;
       display:grid; place-items:center;
-      border:1px solid rgba(255,45,45,.35);
-      background:rgba(255,45,45,.08);
-      box-shadow: 0 0 22px rgba(255,45,45,.10);
-      font-size:18px;
-    }
-
-    .thumb{
-      height:120px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.10);
-      background:
-        radial-gradient(300px 120px at 20% 30%, rgba(255,45,45,.40), transparent 70%),
-        radial-gradient(320px 160px at 80% 30%, rgba(255,0,56,.22), transparent 70%),
-        linear-gradient(135deg, rgba(255,0,56,.10), rgba(255,255,255,.03));
-      margin-bottom:12px;
-      position:relative;
-      overflow:hidden;
-    }
-    .thumb::after{
-      content:"";
-      position:absolute; inset:-30px;
-      background:linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
-      transform:translateX(-40%) rotate(10deg);
-      opacity:.30;
-      animation: sweep 3.6s infinite;
-    }
-    @keyframes sweep{
-      0%{transform:translateX(-60%) rotate(10deg)}
-      60%{transform:translateX(80%) rotate(10deg)}
-      100%{transform:translateX(80%) rotate(10deg)}
-    }
-
-    /* ===== ДОБАВЛЕНО: фото для "Игрок недели" ===== */
-    .player-photo{
-      height:180px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.10);
-      margin-bottom:12px;
-      overflow:hidden;
-      background:rgba(0,0,0,.20);
-      position:relative;
-    }
-    .player-photo img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-      filter: contrast(1.05) saturate(1.05);
-    }
-    .player-title{
-      font-size:18px;
-      text-transform:uppercase;
-      letter-spacing:.7px;
-      margin:10px 0 8px;
-    }
-
-    /* ===== ДОБАВЛЕНО: auth pill в шапке ===== */
-    .auth-pill{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      padding:8px 10px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.04);
-      color:var(--muted);
       font-size:12px;
-      max-width:260px;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      color: rgba(242,242,242,.92);
+      background: rgba(254,32,105,.12);
+      border:1px solid rgba(254,32,105,.22);
+      box-shadow: 0 0 24px rgba(254,32,105,.14);
+      flex:0 0 auto;
+    }
+
+    .more{
+      appearance:none;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--fg);
+      padding: 0 12px;
+      border-radius: 14px;
+      font-size: 12px;
+      cursor:pointer;
+      height: var(--tap);
       white-space:nowrap;
+      touch-action: manipulation;
+      text-transform: uppercase;
+      letter-spacing:.6px;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      font-family: var(--font-body);
     }
-    /* ================================================= */
-
-    /* FAQ */
-    details{
-      border:1px solid rgba(255,45,45,.16);
-      border-radius:16px;
-      padding:14px 14px;
-      background:rgba(255,255,255,.04);
-    }
-    details + details{margin-top:10px}
-    summary{cursor:pointer; font-weight:900; text-transform:uppercase; letter-spacing:.6px}
-    summary::marker{color:var(--red)}
-    details p{color:var(--muted); margin:10px 0 0}
-
-    /* Contact */
-    .contact{
-      display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:start
-    }
-    @media (max-width: 920px){.contact{grid-template-columns:1fr}}
-    form{padding:18px}
-    label{
-      display:block; font-size:12px; color:var(--muted);
-      margin:10px 0 6px; text-transform:uppercase; letter-spacing:.7px
-    }
-    input, textarea, select{
-      width:100%; padding:12px 12px; border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(5,6,10,.60);
-      color:var(--text);
-      outline:none;
-    }
-    textarea{min-height:120px; resize:vertical}
-    input:focus, textarea:focus, select:focus{
-      border-color:rgba(255,45,45,.55);
-      box-shadow:0 0 0 4px rgba(255,45,45,.12)
+    .more:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.10);
+      border-color: rgba(254,32,105,.22);
     }
 
-    .pill{
-      display:inline-flex; align-items:center; gap:10px;
-      padding:10px 12px; border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.04);
+    .section p, .section li{
+      color: rgba(242,242,242,.82);
+      line-height:1.75;
+      font-size: 14px;
     }
-    .pill b{letter-spacing:.6px; text-transform:uppercase}
-    .warn{
-      color:#ffd2d2;
-      border-color:rgba(255,45,45,.25);
-      background:rgba(255,45,45,.06);
-    }
+    .section p{margin:0}
+    .section ul{margin:10px 0 0 18px}
+    .section li{margin:6px 0}
 
-    /* Footer */
-    footer{
-      padding:26px 0 34px;
-      color:var(--muted);
-      border-top:1px solid rgba(255,45,45,.14);
+    /* Experience items */
+    .items{display:flex; flex-direction:column; gap:10px; margin-top:10px;}
+    .item{
+      border:1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(0,0,0,.22), rgba(255,255,255,.04));
+      border-radius: 18px;
+      padding: 12px;
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      justify-content:space-between;
       position:relative;
-      z-index:2;
-    }
-
-    /* Reveal */
-    .fade{opacity:0; transform:translateY(12px); transition:.6s ease}
-    .fade.show{opacity:1; transform:none}
-
-    /* Small helper */
-    .row{display:flex; gap:10px; flex-wrap:wrap}
-    .hr{height:1px; background:rgba(255,45,45,.14); margin:14px 0;}
-
-    /* ===== MODAL (ANKETA) ===== */
-    .modal{
-      position:fixed;
-      inset:0;
-      display:none;
-      z-index:1000;
-    }
-    .modal.active{display:block}
-
-    .modal-overlay{
-      position:absolute;
-      inset:0;
-      background:rgba(0,0,0,.82);
-      backdrop-filter: blur(5px);
-    }
-
-    .modal-box{
-      position:relative;
-      max-width:560px;
-      margin:6vh auto;
-      padding:22px;
-      border-radius:18px;
-      border:1px solid rgba(255,45,45,.30);
-      background: linear-gradient(180deg, rgba(10,10,10,.92), rgba(5,5,5,.92));
-      box-shadow: 0 0 45px rgba(255,0,56,.22), 0 0 25px rgba(255,45,45,.18);
       overflow:hidden;
     }
-    .modal-box::before{
+    .item:before{
       content:"";
-      position:absolute; inset:-2px;
-      background:
-        radial-gradient(420px 180px at 10% 0%, rgba(255,45,45,.25), transparent 60%),
-        radial-gradient(420px 180px at 90% 0%, rgba(255,0,56,.18), transparent 60%);
-      opacity:.65;
+      position:absolute; left:-60px; top:-60px;
+      width:160px; height:160px;
+      background: radial-gradient(circle at 40% 40%, rgba(254,32,105,.16), transparent 60%);
+      opacity:.9;
       pointer-events:none;
     }
-    .modal-box > *{position:relative}
+    .item .left{min-width:0; position:relative; z-index:1;}
+    .item .title{font-weight:760; margin:0 0 2px; font-size:14px; text-transform: uppercase; letter-spacing:.6px;}
+    .item .sub{margin:0; color: rgba(242,242,242,.68); font-size:13px; line-height:1.45;}
+    .tags{margin-top:8px; display:flex; flex-wrap:wrap; gap:8px;}
+    .tag{
+      font-size:11px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(254,32,105,.20);
+      background: rgba(254,32,105,.08);
+      color: rgba(242,242,242,.86);
+      text-transform: uppercase;
+      letter-spacing:.6px;
+      white-space:nowrap;
+    }
 
-    .modal-box h2{
-      margin:0 0 6px;
-      text-transform:uppercase;
-      letter-spacing:.9px;
-      color:#ff2d2d;
-      text-shadow:0 0 14px rgba(255,45,45,.22);
+    /* Side panels */
+    .side{ padding: 14px; display:flex; flex-direction:column; gap:12px; height:100%; align-self:stretch; }
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius);
+      padding: 14px;
+      position:relative;
+      overflow:hidden;
     }
-    .modal-sub{
-      margin:0 0 14px;
-      color:var(--muted);
+
+    .panel.projects{ flex:1; min-height: 220px; }
+    .panel:before{
+      content:"";
+      position:absolute; right:-70px; top:-70px;
+      width:180px; height:180px;
+      background: radial-gradient(circle at 35% 35%, rgba(254,32,105,.14), transparent 62%);
+      opacity:.9;
+      pointer-events:none;
+    }
+    .panel h3{
+      margin:0 0 10px;
+      font-size: 12px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: rgba(242,242,242,.92);
+      position:relative; z-index:1;
+      display:flex; align-items:center; gap:10px;
+    }
+    .panel h3 .bar{
+      height:1px; flex:1;
+      background: linear-gradient(90deg, rgba(254,32,105,.75), transparent);
+      opacity:.7;
+    }
+    .panel p, .panel li{
+      margin:0;
+      color: rgba(242,242,242,.72);
+      line-height:1.65;
       font-size:14px;
+      position:relative; z-index:1;
     }
-    .modal-actions{
-      display:flex;
-      gap:10px;
-      margin-top:18px;
+    .panel ul{ margin:8px 0 0 18px; }
+    .panel li{ margin:6px 0; }
+
+    .ctaWide{ width:100%; justify-content:center; }
+
+    /* Footer */
+    .footer{
+      display:flex; justify-content:space-between; align-items:center; gap:12px;
+      padding: 12px 14px;
+      color: rgba(242,242,242,.70);
+      font-size: 13px;
+      border: 1px solid rgba(254,32,105,.20);
+      border-radius: 18px;
+      background: rgba(255,255,255,.04);
       flex-wrap:wrap;
     }
+    .footer a{ color: var(--fg); text-decoration:none; border-bottom:1px solid rgba(254,32,105,.35); }
+    .footer a:hover{ border-bottom-color: rgba(254,32,105,.65); }
 
-    /* ===== ДОБАВЛЕНО: адаптив для шапки на мобиле (чтобы не багалось) ===== */
-    @media (max-width: 620px){
-      .nav-inner{flex-wrap:wrap}
-      .nav-links{width:100%; overflow:auto; -webkit-overflow-scrolling:touch}
-      .nav-links a{padding:8px 8px}
-      .auth-pill{max-width:100%}
+    /* Mobile */
+    @media (max-width: 560px){
+      :root{ --padX: 14px; }
+      .topbar{ padding: 10px 12px; gap:10px; }
+      .role{ display:none; }
+        .avatar{ border-radius: 18px; }
+
+      .item{ flex-direction:column; }
+      .more{ width:100%; }
+      .btn{ display:none; }
     }
-    /* ================================================================ */
+
+    /* Modal */
+    .modal-overlay{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.68);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 14px;
+      z-index:10;
+    }
+    .modal-overlay.open{display:flex}
+
+    .modal{
+      width: min(920px, 100%);
+      border-radius: 22px;
+      border:1px solid rgba(254,32,105,.22);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      box-shadow: 0 30px 120px rgba(0,0,0,.75);
+      overflow:hidden;
+      max-height: calc(100dvh - 28px);
+      display:flex;
+      flex-direction:column;
+      position:relative;
+    }
+    .modal:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: radial-gradient(420px 220px at 18% 12%, rgba(254,32,105,.16), transparent 60%);
+      opacity:.85;
+      pointer-events:none;
+    }
+    .modal-head{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding: 14px 14px;
+      border-bottom:1px solid rgba(255,255,255,.12);
+      flex:0 0 auto;
+      position:relative; z-index:1;
+    }
+    .modal-title{
+      margin:0;
+      font-size: 13px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: rgba(242,242,242,.92);
+      font-family: var(--font-name);
+      font-weight: 800;
+    }
+    .icon-btn{
+      width: var(--tap); height: var(--tap);
+      border-radius: 14px;
+      display:grid; place-items:center;
+      background: rgba(254,32,105,.10);
+      border:1px solid rgba(254,32,105,.22);
+      cursor:pointer;
+      color:var(--fg);
+      touch-action: manipulation;
+      flex:0 0 auto;
+      position:relative; z-index:1;
+      font-family: var(--font-body);
+    }
+    .modal-body{
+      padding: 14px 14px 16px;
+      color: rgba(242,242,242,.84);
+      line-height:1.75;
+      font-size:14px;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      position:relative; z-index:1;
+    }
+    .modal-body ul{margin:10px 0 0 18px}
+    .modal-body li{margin:6px 0}
+
+    @media (prefers-reduced-motion: reduce){
+      #snow{ display:none; }
+    }
   </style>
 </head>
 
-<body class="fx">
-  <header class="nav">
-    <div class="container nav-inner">
-      <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
-        <span>interpanic</span>
-      </div>
+<body>
+  <canvas id="snow"></canvas>
+  <div class="noise"></div>
 
-      <nav class="nav-links" aria-label="Навигация">
-        <a href="#about">О нас</a>
-        <a href="#features">Условия</a>
-        <a href="#work">Опыт</a>
-        <a href="#pricing">Набор</a>
-        <a href="#playerweek">Игрок недели</a>
-        <a href="#faq">FAQ</a>
-        <a href="#contact">Заявка</a>
-      </nav>
-
-      <!-- ДОБАВЛЕНО: статус + вход discord + вступить (дизайн не ломаем) -->
-      <div class="row" style="align-items:center; justify-content:flex-end">
-        <span class="auth-pill" id="authStatus" title="Авторизация через Discord">Не авторизован</span>
-        <a class="btn btn-outline-red" href="#" id="discordLoginBtn">Войти Discord</a>
-        <a class="btn btn-primary" href="#" id="joinBtn">ВСТУПИТЬ</a>
-      </div>
-    </div>
-  </header>
-
-  <main>
-    <!-- HERO -->
-    <section class="hero">
-      <div class="container grid-hero">
-        <div class="fade">
-          <div class="tag"><span class="dot"></span><b>Rust clan</b> · доминация · медийка</div>
-          <h1>Interpanic</h1>
-          <p class="lead">
-            Мы не «катаем вайп». Мы <b>забираем сервер</b>.
-            Ищем сильных игроков с <b>3000+ часов</b>, мозгами и дисциплиной.
-          </p>
-          <div class="cta">
-            <a class="btn btn-primary" href="#" id="joinBtn2">Оставить заявку</a>
-            <a class="btn btn-outline-red" href="#features">Требования</a>
-            <a class="btn" href="#work">Что делаем</a>
+  <main class="wrap">
+    <div class="container">
+      <header class="topbar">
+        <div class="brand">
+          <span class="mark"></span>
+          <div style="min-width:0">
+            <div class="name" data-i18n="top.name">ЕВГЕНИЙ ТЮТЮНОВ</div>
+            <div class="role" data-i18n="top.role">МАСТЕР ТРЕНЕР • МЕТОДОЛОГ • АРХИТЕКТОР ОБУЧЕНИЯ</div>
           </div>
         </div>
 
-        <aside class="card hero-card fade">
-          <h2>Сразу по делу</h2>
-          <p class="note" style="margin:0 0 10px">
-            Если ты «solo enjoyer» без связи — мимо. Нам нужны таланты, готовые делать грязь командой.
-          </p>
+        <div class="controls">
+          <div class="lang" aria-label="Language switcher">
+            <button id="btnRU" type="button">RU</button>
+            <button id="btnEN" type="button">EN</button>
+          </div>
+          <button class="btn" type="button" data-modal="contacts">
+            <span data-i18n="top.contact">КОНТАКТЫ</span> <span>→</span>
+          </button>
+        </div>
+      </header>
 
-          <div class="mini">
-            <div class="kpi">
-              <div class="num">3000+</div>
-              <div class="lbl">минимум часов</div>
+      <section class="grid">
+        <!-- LEFT -->
+        <div class="card">
+          <div class="hero">
+            <div class="kicker">
+              <span data-i18n="hero.kicker">LEARNING / TRAINING / METHODOLOGY</span>
+              <span class="line"></span>
             </div>
-            <div class="kpi">
-              <div class="num">Микрофон</div>
-              <div class="lbl">обязательно</div>
-            </div>
-            <div class="kpi">
-              <div class="num">Роль</div>
-              <div class="lbl">каждому</div>
-            </div>
-            <div class="kpi">
-              <div class="num">Медийка</div>
-              <div class="lbl">в приоритете</div>
+
+            <div class="heroTop">
+              <div style="min-width:0; flex:1">
+                <h1 data-i18n="hero.h1">ЕВГЕНИЙ ТЮТЮНОВ</h1>
+                <p class="subtitle" data-i18n="hero.subtitle">
+                  Методолог и мастер-тренер. Проектирую системы обучения, которые решают бизнес-задачи: ускоряют адаптацию, повышают продажи, снижают текучку.
+                </p>
+
+                <div class="meta">
+                  <div class="pill accent" data-i18n="hero.meta1">КРАСНОДАР • ONLINE</div>
+                  <div class="pill" data-i18n="hero.meta2">T&D 18+ ЛЕТ • С 2004</div>
+                  <div class="pill" data-i18n="hero.meta3">INSTRUCTIONAL DESIGN • ARCHITECTURE</div>
+                  <div class="pill" data-i18n="hero.meta4">HUAWEI • SAMSUNG</div>
+                </div>
+              </div>
+
+              <!-- Фото: рядом с index.html -->
+              <div class="avatar" title="Фото">
+                <img src="slide1_img1_480.webp" alt="Евгений Тютюнов" loading="eager" decoding="async" />
+              </div>
             </div>
           </div>
 
-          <div class="hr"></div>
-
-          <div class="row">
-            <button class="btn" id="copyDiscordBtn" type="button">Скопировать Discord</button>
-            <a class="btn" href="#contact">Форма</a>
+          <div class="section">
+            <div class="sectionHead">
+              <div class="h2"><span class="num">01</span> <span data-i18n="sec.profile">ПРОФИЛЬ</span></div>
+              <button class="more" type="button" data-modal="profile" data-i18n="btn.details">ПОДРОБНЕЕ</button>
+            </div>
+            <p data-i18n="profile.short">
+              Строю обучение как систему и как продукт: диагностика → дизайн → практика → оценка → улучшения. Запускаю стандарты, траектории, инструменты и процессы L&D.
+            </p>
           </div>
 
-          <p class="note" style="margin:12px 0 0">
-            Discord: <b id="discordTag">discord.gg/MptydUCHq3</b>
-          </p>
+          <div class="section">
+            <div class="sectionHead">
+              <div class="h2"><span class="num">02</span> <span data-i18n="sec.highlights">РЕЗУЛЬТАТЫ</span></div>
+              <button class="more" type="button" data-modal="achievements" data-i18n="btn.details">ПОДРОБНЕЕ</button>
+            </div>
+            <ul>
+              
+            </ul>
+          </div>
+
+          <div class="section">
+            <div class="sectionHead">
+              <div class="h2"><span class="num">03</span> <span data-i18n="sec.experience">ОПЫТ</span></div>
+              <button class="more" type="button" data-modal="experience" data-i18n="btn.details">ПОДРОБНЕЕ</button>
+            </div>
+
+            <div class="items">
+              <div class="item">
+                <div class="left">
+                  <p class="title" data-i18n="exp1.title">HUAWEI — МЕТОДОЛОГ / MASTER TRAINER</p>
+                  <p class="sub" data-i18n="exp1.sub">2019–НАСТ. • СИСТЕМА ОБУЧЕНИЯ • EDUBOT (TELEGRAM)</p>
+                  <div class="tags">
+                    <span class="tag" data-i18n="tags.arch">ARCHITECTURE</span>
+                    <span class="tag" data-i18n="tags.lms">LMS</span>
+                    <span class="tag" data-i18n="tags.bot">EDUBOT</span>
+                  </div>
+                </div>
+                <button class="more" type="button" data-modal="exp1" data-i18n="btn.case">КЕЙС</button>
+              </div>
+
+              <div class="item">
+                <div class="left">
+                  <p class="title" data-i18n="exp2.title">SAMSUNG — МЕТОДОЛОГ / TRAINING MANAGER</p>
+                  <p class="sub" data-i18n="exp2.sub">2013–2019 • TTT • ДИЗАЙН ПРОГРАММ • ОЦЕНКА</p>
+                  <div class="tags">
+                    <span class="tag" data-i18n="tags.ttt">TTT</span>
+                    <span class="tag" data-i18n="tags.assess">ASSESSMENT</span>
+                    <span class="tag" data-i18n="tags.visual">VISUAL</span>
+                  </div>
+                </div>
+                <button class="more" type="button" data-modal="exp2" data-i18n="btn.case">КЕЙС</button>
+              </div>
+
+              <div class="item">
+                <div class="left">
+                  <p class="title" data-i18n="exp3.title">T&D — TRAINER / L&D (С 2004)</p>
+                  <p class="sub" data-i18n="exp3.sub">HARD/SOFT • ANDRAGOGY • WEBINARS</p>
+                  <div class="tags">
+                    <span class="tag" data-i18n="tags.hardsoft">HARD/SOFT</span>
+                    <span class="tag" data-i18n="tags.andrag">ANDRAGOGY</span>
+                    <span class="tag" data-i18n="tags.webinars">WEBINARS</span>
+                  </div>
+                </div>
+                <button class="more" type="button" data-modal="exp3" data-i18n="btn.case">КЕЙС</button>
+              </div>
+
+              <div class="item">
+                <div class="left">
+                  <p class="title" data-i18n="exp4.title">FLUENTA LXP</p>
+                  <p class="sub" data-i18n="exp4.sub">2025-НАСТ. LXP • LEARNING EXPERIENCE PLATFORM</p>
+                  <div class="tags">
+                    <span class="tag" data-i18n="tags.lxp">LXP</span>
+                    <span class="tag" data-i18n="tags.platform">PLATFORM</span>
+                    <span class="tag" data-i18n="tags.launch">LAUNCH</span>
+                  </div>
+                </div>
+                <button class="more" type="button" data-modal="exp4" data-i18n="btn.case">КЕЙС</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="sectionHead">
+              <div class="h2"><span class="num">04</span> <span data-i18n="sec.skills">КОМПЕТЕНЦИИ</span></div>
+              <button class="more" type="button" data-modal="skills" data-i18n="btn.details">ПОДРОБНЕЕ</button>
+            </div>
+            <ul>
+              <li data-i18n="skills.li1">Instructional Design, ADDIE, Agile, 70/20/10</li>
+              <li data-i18n="skills.li2">Проектирование образовательных программ</li>
+              <li data-i18n="skills.li3">E-learning (iSpring, SCORM, LMS)</li>
+              <li data-i18n="skills.li4">Разработка методологий blended-learning</li>
+              <li data-i18n="skills.li5">Learning Analytics и оценка эффективности обучения</li>
+              <li data-i18n="skills.li6">Коучинг (GROW), фасилитация</li>
+              <li data-i18n="skills.li7">Визуализация: PowerPoint, Photoshop, CorelDraw</li>
+              <li data-i18n="skills.li8">Управление проектами, запуск с нуля</li>
+              <li><b>Дизайн:</b> PowerPoint, Photoshop, CorelDraw, Canva</li>
+              <li><b>E-learning:</b> iSpring Suite, Articulate Storyline / Rise</li>
+              <li><b>Видео:</b> Adobe Premiere Pro, After Effects, OBS Studio</li>
+              <li><b>Тесты:</b> Quizizz, Kahoot, Mentimeter, OnlineTestPad</li>
+              <li><b>LMS:</b> Moodle, iSpring</li>
+              <li><b>Тех. обеспечение:</b> Trello, Miro, ChatGPT</li>
+              <li><b>Языки:</b> English, Slovak</li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <div class="sectionHead">
+              <div class="h2"><span class="num">05</span> <span data-i18n="sec.education">ОБРАЗОВАНИЕ</span></div>
+              <button class="more" type="button" data-modal="education" data-i18n="btn.details">ПОДРОБНЕЕ</button>
+            </div>
+            <p data-i18n="edu.short">
+              ВолГАУ (инженер). Сертификации: Samsung Master Trainer (2014), TSCP (2015), Training Management Academy (Level 5) и др.
+            </p>
+          </div>
+        </div>
+
+        <!-- RIGHT -->
+        <aside class="card side">
+          <div class="panel">
+            <h3><span data-i18n="side.contacts">КОНТАКТЫ</span><span class="bar"></span></h3>
+            <p style="margin-bottom:8px"><b>+7 (928) 880-01-46</b></p>
+            <p><b>EV.TYUTYUNOV@GMAIL.COM</b></p>
+            <p style="margin-top:10px" data-i18n="side.loc">ЛОКАЦИЯ: КРАСНОДАР</p>
+            <button class="btn ctaWide" type="button" data-modal="contacts">
+              <span data-i18n="side.openContacts">ОТКРЫТЬ</span> <span>→</span>
+            </button>
+          </div>
+
+          <div class="panel">
+            <h3><span data-i18n="side.focus">ФОКУС</span><span class="bar"></span></h3>
+            <ul>
+              <li data-i18n="side.f1">Диагностика и карта компетенций</li>
+              <li data-i18n="side.f2">Дизайн программ и курсов</li>
+              <li data-i18n="side.f3">Методическая экспертиза</li>
+              <li data-i18n="side.f4">Архитектура траекторий</li>
+              <li data-i18n="side.f5">TTT и развитие тренеров</li>
+            </ul>
+          </div>
+
+          <div class="panel">
+            <h3><span data-i18n="side.awards">НАГРАДЫ</span><span class="bar"></span></h3>
+            <ul>
+              <li data-i18n="side.a1">TOP 10 Russia — 2019–2023</li>
+              <li data-i18n="side.a2">TOP 3 World Trainer — 11/2024</li>
+              <li data-i18n="side.a3">Best Webinarist — 2019–2022</li>
+            </ul>
+            <button class="more" type="button" data-modal="achievements" style="margin-top:12px; width:100%;">ПОДРОБНЕЕ</button>
+          </div>
+
+          <div class="panel projects">
+            <h3><span data-i18n="side.projects">ДОПОЛНИТЕЛЬНО</span><span class="bar"></span></h3>
+            <!-- пусто -->
+          </div>
         </aside>
-      </div>
-    </section>
+      </section>
 
-    <!-- ABOUT -->
-    <section id="about">
-      <div class="container">
-        <h2 class="section-title fade">О нас</h2>
-        <p class="section-sub fade">Коротко: кто мы, зачем мы здесь, и почему нас будут помнить.</p>
-
-        <div class="card" style="padding:18px">
-          <p style="margin:0; color:var(--muted)">
-            <b style="color:var(--text)">interpanic</b> — Клан по расту, который строится вокруг двух вещей:
-            <b style="color:var(--text)">доминация</b> и <b style="color:var(--text)">медийность</b>.
-            Мы собираем игроков, которые умеют давить, не теряются в замесах и понимают командную игру.
-          </p>
-          <div class="hr"></div>
-          <div class="row">
-            <span class="pill warn">⚠️ <b>Цель</b> — контроль РТшек, рейды топов, диктатура по вайпу.</span>
-            <span class="pill">🎥 <b>Медийка</b> — клипы, хайлайты, узнаваемый стиль.</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FEATURES -->
-    <section id="features">
-      <div class="container">
-        <h2 class="section-title fade">Условия</h2>
-        <p class="section-sub fade">Если это про тебя — добро пожаловать. Если нет — не трать своё время.</p>
-
-        <div class="grid-3">
-          <div class="card item fade">
-            <div class="icon" aria-hidden="true">🩸</div>
-            <h3>Отбор без жалости</h3>
-            <p>3000+ часов. Адекватность. Коммуникация. Без «я не умею коллить» и «я в тильте».</p>
-          </div>
-
-          <div class="card item fade">
-            <div class="icon" aria-hidden="true">🗡️</div>
-            <h3>Дисциплина</h3>
-            <p>Роли, коллы, тайминги. На рейде и защите не «по приколу», а по задаче.</p>
-          </div>
-
-          <div class="card item fade">
-            <div class="icon" aria-hidden="true">☠️</div>
-            <h3>Агрессия</h3>
-            <p>Мы не просим место. Мы его забираем. Контроль, давление, доминация на сервере.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- WORK -->
-    <section id="work">
-      <div class="container">
-        <h2 class="section-title fade">Что мы делаем</h2>
-        <p class="section-sub fade">Это не «ферма ради фермы». Это вайп под контроль.</p>
-
-        <div class="grid-3">
-          <div class="card item fade">
-            <div class="thumb" aria-hidden="true"></div>
-            <h3>Контроль ключевых точек</h3>
-            <p>Монументы, Oil, Cargo, ключевые маршруты. Кто не с нами — тот под нами.</p>
-          </div>
-
-          <div class="card item fade">
-            <div class="thumb" aria-hidden="true"></div>
-            <h3>Рейды топ-баз</h3>
-            <p>Разведка → тайминги → вход → лут-контроль. Без хаоса и суеты.</p>
-          </div>
-
-          <div class="card item fade">
-            <div class="thumb" aria-hidden="true"></div>
-            <h3>Медийный стиль</h3>
-            <p>Клипы, хайлайты, нарезки. interpanic должен звучать в комьюнити.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- PRICING -->
-    <section id="pricing">
-      <div class="container">
-        <h2 class="section-title fade">Набор</h2>
-        <p class="section-sub fade">Выбирай формат. Но помни: слабые долго не живут.</p>
-
-        <div class="grid-3">
-          <div class="card item fade">
-            <h3>Основной состав</h3>
-            <p style="margin:0 0 10px; color:var(--muted)">Для тех, кто готов играть на результат.</p>
-            <div class="hr"></div>
-            <p class="note" style="margin:0">
-              ✅ 3000+ часов<br>
-              ✅ стабильный онлайн<br>
-              ✅ участие в рейдах/защите<br>
-              ✅ выполнение ролей
-            </p>
-            <div style="margin-top:14px">
-              <a class="btn btn-primary" href="#" data-open-join>Заявка</a>
-            </div>
-          </div>
-
-          <div class="card item fade">
-            <h3>Испытательный срок</h3>
-            <p style="margin:0 0 10px; color:var(--muted)">Если скилл есть — докажи делом.</p>
-            <div class="hr"></div>
-            <p class="note" style="margin:0">
-              🔻 проверка коммуникации<br>
-              🔻 поведение в тильте<br>
-              🔻 понимание задач<br>
-              🔻 игра в команде
-            </p>
-            <div style="margin-top:14px">
-              <a class="btn btn-outline-red" href="#" data-open-join>Пройти отбор</a>
-            </div>
-          </div>
-
-          <div class="card item fade">
-            <h3>Медийные игроки</h3>
-            <p style="margin:0 0 10px; color:var(--muted)">Стримеры / клиперы / монтажёры.</p>
-            <div class="hr"></div>
-            <p class="note" style="margin:0">
-              🎥 контент с вайпов<br>
-              🎬 хайлайты, нарезки<br>
-              🧷 узнаваемый стиль<br>
-              🔥 рост медийки клана
-            </p>
-            <div style="margin-top:14px">
-              <a class="btn" href="#" data-open-join>Связаться</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- PLAYER OF THE WEEK -->
-    <section id="playerweek">
-      <div class="container">
-        <h2 class="section-title fade">Игрок недели</h2>
-        <p class="section-sub fade">Те, кто реально тащит вайп — получают уважение и место в истории.</p>
-
-        <div class="grid-3">
-          <div class="card item fade">
-            <div class="player-photo" aria-hidden="true">
-              <img src="./ivan.jpg" alt="Игрок недели — режу тёлок">
-            </div>
-            <h3 class="player-title">РЕЖУ ТЁЛОК | Иван</h3>
-            <p>Стал игроком недели, потому что <b style="color:var(--text)">забилдил крутую базу</b> и внёс <b style="color:var(--text)">большой вклад в вайп</b>.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section id="faq">
-      <div class="container">
-        <h2 class="section-title fade">FAQ</h2>
-        <p class="section-sub fade">Читай. Потом заполняй. Экономим время.</p>
-
-        <details class="fade">
-          <summary>Сколько часов нужно?</summary>
-          <p>Минимум <b>3000</b>. Исключения редкие: только если ты реально сильный и это видно сразу.</p>
-        </details>
-
-        <details class="fade">
-          <summary>Нужен ли микрофон?</summary>
-          <p>Да. Без связи ты не игрок, а статист. В interpanic статистов не держим.</p>
-        </details>
-
-        <details class="fade">
-          <summary>Как проходит отбор?</summary>
-          <p>Заявка → вопросы → проверка → решение. Если токсичишь и сливаешь тимплей — вылетаешь.</p>
-        </details>
-      </div>
-    </section>
-
-    <!-- CONTACT -->
-    <section id="contact">
-      <div class="container">
-        <h2 class="section-title fade">Заявка</h2>
-        <p class="section-sub fade">Жмёшь “ВСТУПИТЬ” — заполняешь анкету. Всё просто.</p>
-
-        <div class="contact">
-          <div class="card" style="padding:18px">
-            <h3 style="margin:0 0 8px; text-transform:uppercase; letter-spacing:.7px">Перед заявкой</h3>
-            <p class="note" style="margin:0 0 12px">Пиши честно. Мы всё равно проверим.</p>
-
-            <div class="row">
-              <span class="pill warn">🧨 <b>Требование</b> — 3000+ часов</span>
-              <span class="pill">🎙️ <b>Микрофон</b> — обязателен</span>
-              <span class="pill">🧠 <b>Тимплей</b> — без истерик</span>
-            </div>
-
-            <div class="hr"></div>
-
-            <div class="row">
-              <span class="pill">Discord: <b>discord.gg/MptydUCHq3</b></span>
-              <span class="pill">Telegram: <b>@interpanic</b></span>
-            </div>
-          </div>
-
-          <div class="card" style="padding:18px">
-            <h3 style="margin:0 0 8px; text-transform:uppercase; letter-spacing:.7px">Быстрый вход</h3>
-            <p class="note" style="margin:0 0 14px">Открыть анкету прямо отсюда.</p>
-            <a class="btn btn-primary" href="#" data-open-join>Открыть анкету</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <footer>
-      <div class="container" style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;">
-        <span>© <span id="y"></span> interpanic</span>
-        <span>Rust clan · domination · media</span>
-      </div>
-    </footer>
+      <footer class="footer">
+        <div data-i18n="footer.hint">Модалки закрываются кликом вне окна или ESC.</div>
+        <div><a href="#" data-modal="contacts" data-i18n="footer.link">СВЯЗАТЬСЯ</a></div>
+      </footer>
+    </div>
   </main>
 
-  <!-- JOIN FORM MODAL -->
-  <div class="modal" id="joinModal" aria-hidden="true">
-    <div class="modal-overlay"></div>
-
-    <div class="modal-box" role="dialog" aria-modal="true" aria-label="Заявка в interpanic">
-      <h2>Заявка в interpanic</h2>
-      <p class="modal-sub">Заполняй честно. Вся информация будет проверяться.</p>
-
-      <!-- ДОБАВЛЕНО: статус в модалке -->
-      <div class="row" style="margin:0 0 12px;">
-        <span class="pill" id="modalAuthHint">⚠️ Нужно войти через Discord</span>
-        <a class="btn btn-outline-red" href="#" id="modalDiscordLoginBtn">Войти Discord</a>
+  <!-- Modal -->
+  <div class="modal-overlay" id="overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <h3 class="modal-title" id="modalTitle">Title</h3>
+        <button class="icon-btn" id="closeBtn" aria-label="Close">✕</button>
       </div>
-      <div class="hr" style="margin:10px 0 12px"></div>
-
-      <form id="joinForm">
-        <label>1. От кого вы узнали о нас?</label>
-        <input name="source" type="text" required placeholder="Друг / Discord / YouTube / Другое">
-
-        <label>2. Сколько вам лет?</label>
-        <input name="age" type="number" required min="0" placeholder="Возраст">
-
-        <label>3. Сколько у вас часов в игре?</label>
-        <input name="hours" type="number" required min="0" placeholder="Например: 3200">
-
-        <label>4. Сколько вы готовы уделять времени нашему клану (в день)?</label>
-        <input name="timePerDay" type="text" required placeholder="Например: 4–6 часов">
-
-        <label>5. На какую должность вы рассчитываете?</label>
-        <select name="role" required>
-          <option value="">Выберите</option>
-          <option>Комбат</option>
-          <option>Фарм</option>
-          <option>Билдер</option>
-          <option>Фермер</option>
-          <option>Коллер</option>
-          <option>Другое</option>
-        </select>
-
-        <label>6. Готовы ли вы пройти проверку?</label>
-        <select name="check" required>
-          <option value="">Выберите</option>
-          <option>Да</option>
-          <option>Нет</option>
-        </select>
-
-        <div class="modal-actions">
-          <button type="submit" class="btn btn-primary" id="submitApplicationBtn">Отправить заявку</button>
-          <button type="button" class="btn" id="closeModal">Отмена</button>
-        </div>
-
-        <!-- ДОБАВЛЕНО: сообщение о лимите -->
-        <p class="note" id="applyOnceHint" style="margin:12px 0 0">
-          ⚠️ Заявку можно отправить <b style="color:var(--text)">только один раз</b>.
-        </p>
-      </form>
+      <div class="modal-body" id="modalBody"></div>
     </div>
   </div>
 
   <script>
-    // ===========================
-    // CONFIG (ВАЖНО!)
-    // ===========================
-    // Твой backend на Render:
-    const API_BASE = "https://interpanic-backend.onrender.com";
+    // =========================
+    // i18n
+    // =========================
+    const I18N = {
+      ru: {
+        "top.name":"ЕВГЕНИЙ ТЮТЮНОВ",
+        "top.role":"МАСТЕР ТРЕНЕР • МЕТОДОЛОГ • АРХИТЕКТОР ОБУЧЕНИЯ",
+        "top.contact":"КОНТАКТЫ",
 
-    // ===========================
-    // footer year
-    // ===========================
-    document.getElementById("y").textContent = new Date().getFullYear();
+        "hero.kicker":"LEARNING / TRAINING / METHODOLOGY",
+        "hero.h1":"ЕВГЕНИЙ ТЮТЮНОВ",
+        "hero.subtitle":"Методолог и мастер-тренер. Проектирую системы обучения, которые решают бизнес-задачи: ускоряют адаптацию, повышают продажи, снижают текучку.",
+        "hero.meta1":"РОССИЯ • ONLINE",
+        "hero.meta2":"T&D 21+ ЛЕТ • С 2004",
+        "hero.meta3":"INSTRUCTIONAL DESIGN • ARCHITECTURE",
+        "hero.meta4":"HUAWEI • SAMSUNG",
 
-    // ===========================
-    // copy discord
-    // ===========================
-    const copyBtn = document.getElementById("copyDiscordBtn");
-    if (copyBtn) {
-      copyBtn.addEventListener("click", async () => {
-        const text = document.getElementById("discordTag")?.textContent?.trim() || "discord.gg/INTERPANIC";
-        try { await navigator.clipboard.writeText(text); alert("Скопировано: " + text); }
-        catch { prompt("Скопируй вручную:", text); }
+        "sec.profile":"ПРОФИЛЬ",
+        "sec.highlights":"РЕЗУЛЬТАТЫ",
+        "sec.experience":"ОПЫТ",
+        "sec.skills":"КОМПЕТЕНЦИИ",
+        "sec.education":"ОБРАЗОВАНИЕ",
+
+        "btn.details":"ПОДРОБНЕЕ",
+        "btn.case":"ЕЩЁ",
+
+        "profile.short":"Строю обучение как систему и как продукт: диагностика → дизайн → практика → оценка → улучшения. Запускаю стандарты, траектории, инструменты и процессы L&D.",
+
+        "ach.li1":"+800% вовлечённость в обучение",
+        "ach.li2":"-65% текучка новичков через стандартизированную адаптацию",
+        "ach.li3":"$1.6 млн онлайн-продаж в пандемию через обученные команды",
+
+        "exp1.title":"HUAWEI — МЕТОДОЛОГ / MASTER TRAINER",
+        "exp1.sub":"2019–НАСТ. • СИСТЕМА ОБУЧЕНИЯ • EDUBOT (TELEGRAM)",
+        "exp2.title":"SAMSUNG — МЕТОДОЛОГ / TRAINING MANAGER",
+        "exp2.sub":"2013–2019 • TTT • ДИЗАЙН ПРОГРАММ • ОЦЕНКА",
+        "exp3.title":"T&D — TRAINER / L&D (С 2004)",
+        "exp3.sub":"HARD/SOFT • ANDRAGOGY • WEBINARS",
+
+        "exp4.title":"FLUENTA LXP",
+        "exp4.sub":"2025-NOW • LXP • LEARNING EXPERIENCE PLATFORM",
+
+        "exp4.title":"FLUENTA LXP",
+        "exp4.sub":"2025-НАСТ. • LXP • LEARNING EXPERIENCE PLATFORM",
+
+        "tags.arch":"ARCHITECTURE",
+        "tags.lms":"LMS",
+        "tags.bot":"EDUBOT",
+        "tags.ttt":"TTT",
+        "tags.assess":"ASSESSMENT",
+        "tags.visual":"VISUAL",
+        "tags.hardsoft":"HARD/SOFT",
+        "tags.andrag":"ANDRAGOGY",
+        "tags.webinars":"WEBINARS",
+
+        "tags.lxp":"LXP",
+        "tags.platform":"PLATFORM",
+        "tags.launch":"LAUNCH",
+
+        "tags.lxp":"LXP",
+        "tags.platform":"PLATFORM",
+        "tags.launch":"LAUNCH",
+
+        "skills.li1":"Инструкциональный дизайн (Instructional Design): ADDIE, Agile, 70/20/10",
+        "skills.li2":"Проектирование образовательных программ",
+        "skills.li3":"E-learning (iSpring, SCORM, LMS)",
+        "skills.li4":"Разработка методологий blended-learning",
+
+        "edu.short":"ВолГАУ (инженер). Сертификации: Samsung Master Trainer (2014), TSCP (2015), Training Management Academy (Level 5) и др.",
+
+        "side.contacts":"КОНТАКТЫ",
+        "side.openContacts":"ОТКРЫТЬ",
+        "side.loc":"ЛОКАЦИЯ: РОССИЯ",
+        "side.focus":"ФОКУС",
+        "side.f1":"Диагностика и карта компетенций",
+        "side.f2":"Дизайн программ и курсов",
+        "side.f3":"Методическая экспертиза",
+        "side.f4":"Архитектура траекторий",
+        "side.f5":"TTT и развитие тренеров",
+
+        "side.awards":"НАГРАДЫ",
+        "side.a1":"TOP 10 RUSSIA — 2019–2023",
+        "side.a2":"TOP 3 WORLD TRAINER — 11/2024",
+        "side.a3":"BEST WEBINARIST — 2019–2022",
+
+        "side.misc":"ДОПОЛНИТЕЛЬНО",
+        "side.m1":"Права: категории B, C",
+        "side.m2":"Хобби: спорт, книги, путешествия",
+        "side.m3":"Языки: RU / EN / SK",
+
+        "footer.hint":"",
+        "footer.link":"СВЯЗАТЬСЯ"
+      ,
+        "skills.li5":"Learning Analytics и оценка эффективности обучения"
+,
+        "skills.li6":"Коучинг (GROW), фасилитация"
+,
+        "skills.li7":"Визуализация: PowerPoint, Photoshop, CorelDraw"
+,
+        "skills.li8":"Управление проектами, запуск с нуля"
+,
+        "side.projects":"ПРОЕКТЫ"
+},
+
+      en: {
+        "top.name":"EVGENIY TYUTYUNOV",
+        "top.role":"MASTER TRAINER • METHODOLOGIST • LEARNING ARCHITECT",
+        "top.contact":"CONTACTS",
+
+        "hero.kicker":"LEARNING / TRAINING / METHODOLOGY",
+        "hero.h1":"EVGENIY TYUTYUNOV",
+        "hero.subtitle":"Methodologist and master trainer. I design learning systems that solve business problems: faster onboarding, higher sales, lower attrition.",
+        "hero.meta1":"RUSSIA • REMOTE",
+        "hero.meta2":"21+ YEARS IN T&D • SINCE 2004",
+        "hero.meta3":"INSTRUCTIONAL DESIGN • ARCHITECTURE",
+        "hero.meta4":"HUAWEI • SAMSUNG",
+
+        "sec.profile":"PROFILE",
+        "sec.highlights":"HIGHLIGHTS",
+        "sec.experience":"EXPERIENCE",
+        "sec.skills":"COMPETENCIES",
+        "sec.education":"EDUCATION",
+
+        "btn.details":"DETAILS",
+        "btn.case":"MORE",
+
+        "profile.short":"I build learning as a system and as a product: diagnosis → design → practice → assessment → improvement. I launch standards, learning paths, tools and L&D processes.",
+
+        "ach.li1":"+800% learning engagement",
+        "ach.li2":"-65% newcomer attrition via standardized onboarding",
+        "ach.li3":"$1.6M online sales during pandemic via trained teams",
+
+        "exp1.title":"HUAWEI — METHODOLOGIST / MASTER TRAINER",
+        "exp1.sub":"2019–PRESENT • LEARNING SYSTEM • EDUBOT (TELEGRAM)",
+        "exp2.title":"SAMSUNG — METHODOLOGIST / TRAINING MANAGER",
+        "exp2.sub":"2013–2019 • TTT • PROGRAM DESIGN • ASSESSMENT",
+        "exp3.title":"T&D — TRAINER / L&D (SINCE 2004)",
+        "exp3.sub":"HARD/SOFT • ANDRAGOGY • WEBINARS",
+
+        "exp4.title":"FLUENTA LXP",
+        "exp4.sub":"2025-NOW • LXP • LEARNING EXPERIENCE PLATFORM",
+
+        "exp4.title":"FLUENTA LXP",
+        "exp4.sub":"2025-NOW • LXP • LEARNING EXPERIENCE PLATFORM",
+
+        "tags.arch":"ARCHITECTURE",
+        "tags.lms":"LMS",
+        "tags.bot":"EDUBOT",
+        "tags.ttt":"TTT",
+        "tags.assess":"ASSESSMENT",
+        "tags.visual":"VISUAL",
+        "tags.hardsoft":"HARD/SOFT",
+        "tags.andrag":"ANDRAGOGY",
+        "tags.webinars":"WEBINARS",
+
+        "tags.lxp":"LXP",
+        "tags.platform":"PLATFORM",
+        "tags.launch":"LAUNCH",
+
+        "tags.lxp":"LXP",
+        "tags.platform":"PLATFORM",
+        "tags.launch":"LAUNCH",
+
+        "skills.li1":"Instructional Design, ADDIE, Agile, 70/20/10",
+        "skills.li2":"Learning program design",
+        "skills.li3":"E-learning (iSpring, SCORM, LMS)",
+        "skills.li4":"Blended-learning methodology development",
+
+        "edu.short":"VolGAU (Engineer). Certifications: Samsung Master Trainer (2014), TSCP (2015), Training Management Academy (Level 5), etc.",
+
+        "side.contacts":"CONTACTS",
+        "side.openContacts":"OPEN",
+        "side.loc":"LOCATION: RUSSIA",
+        "side.focus":"FOCUS",
+        "side.f1":"Needs analysis & competency maps",
+        "side.f2":"Program and course design",
+        "side.f3":"Methodological expertise",
+        "side.f4":"Learning path architecture",
+        "side.f5":"TTT & trainer development",
+
+        "side.awards":"AWARDS",
+        "side.a1":"TOP 10 RUSSIA — 2019–2023",
+        "side.a2":"TOP 3 WORLD TRAINER — 11/2024",
+        "side.a3":"BEST WEBINARIST — 2019–2022",
+
+        "side.misc":"MORE",
+        "side.m1":"Driver’s license: B, C",
+        "side.m2":"Hobbies: sports, books, travel",
+        "side.m3":"Languages: RU / EN / SK",
+
+        "footer.hint":"Close modals by clicking outside or pressing ESC.",
+        "footer.link":"GET IN TOUCH"
+      ,
+        "skills.li5":"Learning analytics & training effectiveness evaluation"
+,
+        "skills.li6":"Coaching (GROW), facilitation"
+,
+        "skills.li7":"Visualization: PowerPoint, Photoshop, CorelDraw"
+,
+        "skills.li8":"Project management, building from scratch"
+,
+        "side.projects":"PROJECTS"
+}
+    };
+
+    const MODALS = {
+      profile: {
+        titleKey: {ru:"ПРОФИЛЬ — ДЕТАЛИ", en:"PROFILE — DETAILS"},
+        html: {
+          ru: `
+            <ul>
+              <li><b>Подход:</b> обучение как продукт (цель → навыки → практика → оценка).</li>
+              <li><b>Архитектура:</b> траектории, стандарты, методические инструменты.</li>
+              <li><b>Запуск:</b> пилоты, обучение тренеров/экспертов, QA, итерации.</li>
+            </ul>
+          `,
+          en: `
+            <ul>
+              <li><b>Approach:</b> learning as a product (goal → skills → practice → assessment).</li>
+              <li><b>Architecture:</b> paths, standards, methodological toolkits.</li>
+              <li><b>Delivery:</b> pilots, trainer enablement, QA, iterations.</li>
+            </ul>
+          `
+        }
+      },
+      achievements: {
+        titleKey: {ru:"РЕЗУЛЬТАТЫ — ЦИФРЫ И НАГРАДЫ", en:"HIGHLIGHTS — METRICS & AWARDS"},
+        html: {
+          ru: `
+         
+            <ul>
+             
+            </ul>
+            <p style="margin-top:10px"><b>Награды:</b></p>
+            <ul>
+              <li>Best Employee TOP 10 Russia — 2019–2023</li>
+              <li>TOP 3 World Trainer — 11/2024</li>
+              <li>Best Webinarist — 2019–2022</li>
+            </ul>
+          `,
+          en: `
+         
+            <ul>
+          
+            </ul>
+            <p style="margin-top:10px"><b>Awards:</b></p>
+            <ul>
+              <li>Best Employee TOP 10 Russia — 2019–2023</li>
+              <li>TOP 3 World Trainer — 11/2024</li>
+              <li>Best Webinarist — 2019–2022</li>
+            </ul>
+          `
+        }
+      },
+      experience: {
+        titleKey: {ru:"ОПЫТ — РАСШИРЕННО", en:"EXPERIENCE — EXPANDED"},
+        html: {
+          ru: `
+            <ul>
+              <li><b>Huawei (2019–н.в.)</b>: система обучения, инструменты, дистанционные форматы, Telegram-платформа.</li>
+              <li><b>Samsung (2013–2019)</b>: развитие тренеров, дизайн программ, оценка, сертификация.</li>
+              <li><b>T&D с 2004</b>: тренинги hard/soft, очно и онлайн.</li>
+            </ul>
+          `,
+          en: `
+            <ul>
+              <li><b>Huawei (2019–present)</b>: learning system, tools, remote formats, Telegram platform.</li>
+              <li><b>Samsung (2013–2019)</b>: trainer development, program design, measurement, certification.</li>
+              <li><b>T&D since 2004</b>: hard/soft trainings, in-person & online.</li>
+            </ul>
+          `
+        }
+      },
+      exp1: {
+        titleKey: {ru:"КЕЙС — HUAWEI", en:"CASE — HUAWEI"},
+        html: {
+          ru: `
+            <ul>
+              <li>Многоуровневая система обучения полевых сотрудников.</li>
+              <li>Запуск EduBot (Telegram) — полный цикл от идеи до внедрения.</li>
+              <li>Мотивационные механики → рост вовлечённости.</li>
+            </ul>
+          `,
+          en: `
+            <ul>
+              <li>Multi-level learning system for field teams.</li>
+              <li>EduBot (Telegram) launch — end-to-end delivery.</li>
+              <li>Motivation mechanics → higher engagement.</li>
+            </ul>
+          `
+        }
+      },
+      exp2: {
+        titleKey: {ru:"КЕЙС — SAMSUNG", en:"CASE — SAMSUNG"},
+        html: {
+          ru: `
+            <ul>
+              <li>Развитие команды тренеров (TTT).</li>
+              <li>Дизайн программ, пост-поддержка и оценка.</li>
+              <li>Сертификация и стандарты качества.</li>
+            </ul>
+          `,
+          en: `
+            <ul>
+              <li>Trainer team development (TTT).</li>
+              <li>Program design, reinforcement and assessment.</li>
+              <li>Certification and quality standards.</li>
+            </ul>
+          `
+        }
+      },
+      exp3: {
+        titleKey: {ru:"КЕЙС — ФОРМАТЫ", en:"CASE — FORMATS"},
+        html: {
+          ru: `
+            <ul>
+              <li>Hard/Soft skills, андрагогика.</li>
+              <li>Очные тренинги и вебинары.</li>
+              <li>Коучинг (GROW), фасилитация.</li>
+            </ul>
+          `,
+          en: `
+            <ul>
+              <li>Hard/Soft skills, andragogy.</li>
+              <li>In-person trainings and webinars.</li>
+              <li>Coaching (GROW), facilitation.</li>
+            </ul>
+          `
+        }
+      },
+      exp4: {
+        titleKey: {ru:"КЕЙС — FLUENTA LXP", en:"CASE — FLUENTA LXP"},
+        html: {
+          ru: `
+            <ul>
+              <li>Проектирование и запуск LXP-решения: структура, контент, сценарии.</li>
+              <li>Интеграция форматов: курсы, вебинары, практики, треки развития.</li>
+              <li>Метрики вовлечённости и эффективность обучения.</li>
+            </ul>
+          `,
+          en: `
+            <ul>
+              <li>LXP solution design and launch: structure, content, learning journeys.</li>
+              <li>Blended formats: courses, webinars, practice, development tracks.</li>
+              <li>Engagement metrics and learning effectiveness.</li>
+            </ul>
+          `
+        }
+      },
+
+      skills: {
+        titleKey: {ru:"КОМПЕТЕНЦИИ — ДЕТАЛИ", en:"COMPETENCIES — DETAILS"},
+        html: {
+          ru: `
+            <ul>
+              <li>Инструкциональный дизайн (Instructional Design): ADDIE, Agile, 70/20/10</li>
+              <li>Проектирование образовательных программ</li>
+              <li>E-learning (iSpring, SCORM, LMS)</li>
+              <li>Разработка методологий blended-learning</li>
+              <li>Learning Analytics и оценка эффективности обучения</li>
+              <li>Коучинг (GROW), фасилитация</li>
+              <li>Визуализация: PowerPoint, Photoshop, CorelDraw</li>
+              <li>Управление проектами, запуск с нуля</li>
+            </ul>
+`,
+          en: `
+            <ul>
+              <li>Instructional Design, ADDIE, Agile, 70/20/10</li>
+              <li>Learning program design</li>
+              <li>E-learning (iSpring, SCORM, LMS)</li>
+              <li>Blended-learning methodology development</li>
+              <li>Learning analytics & training effectiveness evaluation</li>
+              <li>Coaching (GROW), facilitation</li>
+              <li>Visualization: PowerPoint, Photoshop, CorelDraw</li>
+              <li>Project management, building from scratch</li>
+            </ul>
+`
+        }
+      },
+      education: {
+        titleKey: {ru:"ОБРАЗОВАНИЕ — ДЕТАЛИ", en:"EDUCATION — DETAILS"},
+        html: {
+          ru: `
+            <p><b>ВолГАУ</b> — инженер.</p>
+            <ul>
+              <li>Samsung Master Trainer (2014)</li>
+              <li>TSCP (2015)</li>
+              <li>Training Management Academy (Level 5)</li>
+            </ul>
+          `,
+          en: `
+            <p><b>VolGAU</b> — Engineer.</p>
+            <ul>
+              <li>Samsung Master Trainer (2014)</li>
+              <li>TSCP (2015)</li>
+              <li>Training Management Academy (Level 5)</li>
+            </ul>
+          `
+        }
+      },
+      contacts: {
+        titleKey: {ru:"КОНТАКТЫ", en:"CONTACTS"},
+        html: {
+          ru: `
+            <ul>
+              <li><b>Телефон:</b> +7 (928) 880-01-46</li>
+              <li><b>Email:</b> EV.TYUTYUNOV@GMAIL.COM</li>
+              <li><b>Локация:</b> Россия</li>
+              <li><b>Языки:</b> RU (native), EN (Intermediate), SK (beginner)</li>
+            </ul>
+          `,
+          en: `
+            <ul>
+              <li><b>Phone:</b> +7 (928) 880-01-46</li>
+              <li><b>Email:</b> EV.TYUTYUNOV@GMAIL.COM</li>
+              <li><b>Location:</b> Russia/li>
+              <li><b>Languages:</b> RU (native), EN (Intermediate), SK (beginner)</li>
+            </ul>
+          `
+        }
+      }
+    };
+
+    // =========================
+    // Language switch
+    // =========================
+    const btnRU = document.getElementById("btnRU");
+    const btnEN = document.getElementById("btnEN");
+    const LANG_KEY = "cv_lang";
+
+    function setActiveLangUI(lang){
+      if(btnRU) btnRU.classList.toggle("active", lang === "ru");
+      if(btnEN) btnEN.classList.toggle("active", lang === "en");
+      document.documentElement.lang = (lang === "en") ? "en" : "ru";
+    }
+
+    function applyI18n(lang){
+      const dict = I18N[lang] || I18N.ru;
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        const value = dict[key];
+        if(value !== undefined) el.textContent = value;
+      });
+      setActiveLangUI(lang);
+    }
+
+    function getLang(){
+      const saved = localStorage.getItem(LANG_KEY);
+      if(saved === "ru" || saved === "en") return saved;
+      const nav = (navigator.language || "ru").toLowerCase();
+      return nav.startsWith("en") ? "en" : "ru";
+    }
+
+    function setLang(lang){
+      localStorage.setItem(LANG_KEY, lang);
+      applyI18n(lang);
+    }
+
+    if(btnRU) btnRU.addEventListener("click", ()=> setLang("ru"));
+    if(btnEN) btnEN.addEventListener("click", ()=> setLang("en"));
+    setLang(getLang());
+
+    // =========================
+    // Modal
+    // =========================
+    const overlay = document.getElementById("overlay");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalBody = document.getElementById("modalBody");
+    const closeBtn = document.getElementById("closeBtn");
+
+    function currentLang(){ return (localStorage.getItem(LANG_KEY) === "en") ? "en" : "ru"; }
+
+    function openModal(key){
+      const m = MODALS[key];
+      if(!m || !overlay) return;
+      const lang = currentLang();
+      modalTitle.textContent = m.titleKey?.[lang] || "DETAILS";
+      modalBody.innerHTML = m.html?.[lang] || "";
+      overlay.classList.add("open");
+      overlay.setAttribute("aria-hidden","false");
+      document.body.style.overflow = "hidden";
+      if(closeBtn) closeBtn.focus();
+    }
+
+    function closeModal(){
+      if(!overlay) return;
+      overlay.classList.remove("open");
+      overlay.setAttribute("aria-hidden","true");
+      document.body.style.overflow = "";
+    }
+
+    document.addEventListener("click", (e) => {
+      const trigger = e.target.closest("[data-modal]");
+      if(trigger){
+        e.preventDefault();
+        openModal(trigger.dataset.modal);
+        return;
+      }
+      if(e.target === overlay) closeModal();
+    });
+
+    if(closeBtn) closeBtn.addEventListener("click", closeModal);
+    document.addEventListener("keydown", (e) => {
+      if(e.key === "Escape") closeModal();
+    });
+
+    // =========================
+    // Snowflakes — soft + highlight (background)
+    // =========================
+    const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const snowCanvas = document.getElementById("snow");
+    const snowCtx = snowCanvas.getContext("2d", { alpha: true });
+
+    let paused = false;
+    document.addEventListener("visibilitychange", () => { paused = document.hidden; });
+
+    function resizeSnow(){
+      const dpr = Math.max(1, Math.min(1.6, window.devicePixelRatio || 1));
+      snowCanvas.width = Math.floor(window.innerWidth * dpr);
+      snowCanvas.height = Math.floor(window.innerHeight * dpr);
+      snowCanvas.style.width = window.innerWidth + "px";
+      snowCanvas.style.height = window.innerHeight + "px";
+      snowCtx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    window.addEventListener("resize", resizeSnow);
+
+    const flakes = [];
+    const isMobile = window.matchMedia("(max-width: 560px)").matches;
+    const baseCount = Math.floor((window.innerWidth * window.innerHeight) / (isMobile ? 17000 : 11000));
+    const count = Math.min(isMobile ? 85 : 170, Math.max(isMobile ? 35 : 65, baseCount));
+
+    function rand(min,max){ return Math.random()*(max-min)+min; }
+
+    function addFlake(initial=false){
+      flakes.push({
+        x: rand(0, window.innerWidth),
+        y: initial ? rand(0, window.innerHeight) : rand(-80,-10),
+        r: rand(0.8, isMobile ? 2.2 : 2.9),
+        speed: rand(0.6, isMobile ? 1.9 : 2.4),
+        drift: rand(-0.65, 0.65),
+        wobble: rand(0, Math.PI*2),
+        o: rand(0.35, 0.95),
+        tw: rand(0.85, 1.15)
       });
     }
 
-    // ===========================
-    // reveal on scroll
-    // ===========================
-    const io = new IntersectionObserver((entries) => {
-      for (const en of entries) if (en.isIntersecting) en.target.classList.add("show");
-    }, { threshold: 0.12 });
-    document.querySelectorAll(".fade").forEach(el => io.observe(el));
-
-    // ===========================
-    // JOIN MODAL LOGIC
-    // ===========================
-    const joinModal = document.getElementById("joinModal");
-    const closeModal = document.getElementById("closeModal");
-
-    function openJoinModal(e){
-      if (e) e.preventDefault();
-      joinModal.classList.add("active");
-      joinModal.setAttribute("aria-hidden", "false");
-      refreshAuthAndUi(); // обновляем статус при открытии
+    function initSnow(){
+      if(reduceMotion) return;
+      resizeSnow();
+      flakes.length = 0;
+      for(let i=0;i<count;i++) addFlake(true);
     }
-    function closeJoinModal(){
-      joinModal.classList.remove("active");
-      joinModal.setAttribute("aria-hidden", "true");
-    }
+    initSnow();
 
-    document.getElementById("joinBtn")?.addEventListener("click", openJoinModal);
-    document.getElementById("joinBtn2")?.addEventListener("click", openJoinModal);
-    document.querySelectorAll("[data-open-join]").forEach(el => el.addEventListener("click", openJoinModal));
+    let last = 0;
+    const fpsInterval = 1000 / 30;
 
-    closeModal.addEventListener("click", closeJoinModal);
-    joinModal.querySelector(".modal-overlay").addEventListener("click", closeJoinModal);
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeJoinModal(); });
-
-    // ===========================
-    // DISCORD LOGIN BUTTONS
-    // ===========================
-    function goDiscordLogin(e){
-      if (e) e.preventDefault();
-      window.location.href = `${API_BASE}/auth/discord`;
-    }
-    document.getElementById("discordLoginBtn")?.addEventListener("click", goDiscordLogin);
-    document.getElementById("modalDiscordLoginBtn")?.addEventListener("click", goDiscordLogin);
-
-    // ===========================
-    // AUTH + APPLY ONCE (client-side + backend)
-    // ===========================
-    let currentUser = null; // { id, username, ... } if logged in
-
-    const authStatusEl = document.getElementById("authStatus");
-    const modalAuthHintEl = document.getElementById("modalAuthHint");
-    const submitBtn = document.getElementById("submitApplicationBtn");
-
-    function appliedStorageKey(discordId){
-      return `interpanic_applied_${discordId}`;
-    }
-
-    function setSubmitEnabled(enabled){
-      submitBtn.disabled = !enabled;
-      submitBtn.style.opacity = enabled ? "1" : ".55";
-      submitBtn.style.cursor = enabled ? "pointer" : "not-allowed";
-    }
-
-    function setAuthStatusText(text){
-      if (authStatusEl) authStatusEl.textContent = text;
-    }
-
-    function setModalHint(text, isWarn=true){
-      if (!modalAuthHintEl) return;
-      modalAuthHintEl.textContent = text;
-      modalAuthHintEl.classList.toggle("warn", !!isWarn);
-    }
-
-    async function fetchMe(){
-      try{
-        const r = await fetch(`${API_BASE}/me`, { credentials: "include" });
-        if(!r.ok) return null;
-        const data = await r.json();
-        return data?.user || null;
-      }catch{
-        return null;
-      }
-    }
-
-    function updateUiByAuth(){
-      if (!currentUser){
-        setAuthStatusText("Не авторизован");
-        setModalHint("⚠️ Нужно войти через Discord", true);
-        setSubmitEnabled(false);
+    function tick(ts){
+      if(reduceMotion || paused){
+        requestAnimationFrame(tick);
         return;
       }
-
-      // logged in
-      const name = currentUser.username || "Discord";
-      setAuthStatusText(`Вошёл как: ${name}`);
-      setModalHint(`✅ Авторизован: ${name}`, false);
-
-      // apply-once check (client-side)
-      const key = appliedStorageKey(currentUser.id);
-      const already = localStorage.getItem(key) === "1";
-      if (already){
-        setModalHint("✅ Заявка уже отправлена (повторно нельзя)", false);
-        setSubmitEnabled(false);
-        submitBtn.textContent = "Заявка уже отправлена";
-      } else {
-        setSubmitEnabled(true);
-        submitBtn.textContent = "Отправить заявку";
-      }
-    }
-
-    async function refreshAuthAndUi(){
-      currentUser = await fetchMe();
-      updateUiByAuth();
-    }
-
-    // обновляем при загрузке
-    refreshAuthAndUi();
-
-    // ===========================
-    // SUBMIT -> backend (1 раз)
-    // ===========================
-    document.getElementById("joinForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      // must login
-      if (!currentUser){
-        alert("Сначала войди через Discord, потом отправляй заявку.");
+      if(ts - last < fpsInterval){
+        requestAnimationFrame(tick);
         return;
       }
+      last = ts;
 
-      // client-side apply-once
-      const key = appliedStorageKey(currentUser.id);
-      if (localStorage.getItem(key) === "1"){
-        alert("Заявка уже отправлена. Повторно нельзя.");
-        updateUiByAuth();
-        return;
-      }
+      snowCtx.clearRect(0,0,window.innerWidth, window.innerHeight);
 
-      // собираем данные
-      const fd = new FormData(e.target);
-      const payload = Object.fromEntries(fd.entries());
+      for(const f of flakes){
+        f.wobble += 0.01 + f.r * 0.002;
+        f.x += f.drift + Math.sin(f.wobble) * 0.35;
+        f.y += f.speed * (0.65 + f.r/3.2);
 
-      // отправляем в backend
-      try{
-        setSubmitEnabled(false);
-        submitBtn.textContent = "Отправляю...";
+        // body
+        snowCtx.beginPath();
+        snowCtx.arc(f.x, f.y, f.r, 0, Math.PI*2);
+        snowCtx.fillStyle = `rgba(242,242,242,${f.o})`;
+        snowCtx.fill();
 
-        const r = await fetch(`${API_BASE}/applications`, {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
+        // highlight
+        snowCtx.beginPath();
+        snowCtx.arc(
+          f.x - f.r*0.35,
+          f.y - f.r*0.35,
+          Math.max(0.35, f.r*0.45 * f.tw),
+          0,
+          Math.PI*2
+        );
+        snowCtx.fillStyle = `rgba(255,255,255,${Math.min(1, f.o*0.55)})`;
+        snowCtx.fill();
 
-        // если backend тоже делает apply-once — он может вернуть 409
-        if (r.status === 409){
-          localStorage.setItem(key, "1"); // на всякий случай синхронизируем
-          alert("Заявка уже была отправлена ранее. Повторно нельзя.");
-          await refreshAuthAndUi();
-          return;
+        if(f.y > window.innerHeight + 50){
+          f.y = rand(-90,-20);
+          f.x = rand(0, window.innerWidth);
+          f.o = rand(0.35, 0.95);
+          f.tw = rand(0.85, 1.15);
         }
-
-        if (!r.ok){
-          const txt = await r.text().catch(()=>"");
-          alert("Ошибка отправки заявки. " + (txt ? ("Детали: " + txt) : ""));
-          await refreshAuthAndUi();
-          return;
-        }
-
-        // success
-        localStorage.setItem(key, "1");
-        alert("Заявка отправлена. Мы свяжемся с вами после проверки.");
-        e.target.reset();
-        closeJoinModal();
-        await refreshAuthAndUi();
-
-      }catch(err){
-        console.error(err);
-        alert("Не удалось отправить заявку (ошибка сети).");
-        await refreshAuthAndUi();
+        if(f.x < -70) f.x = window.innerWidth + 35;
+        if(f.x > window.innerWidth + 70) f.x = -35;
       }
+
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+
+    let rTO;
+    window.addEventListener("resize", () => {
+      clearTimeout(rTO);
+      rTO = setTimeout(initSnow, 150);
     });
   </script>
 </body>
